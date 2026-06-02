@@ -11,17 +11,17 @@
 
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --success: #059669;
-            --danger: #dc2626;
-            --warning: #d97706;
-            --dark: #0f172a;
-            --text-main: #334155;
-            --text-muted: #64748b;
-            --bg-main: #ffffff; /* Requested Pure White Theme Base */
-            --bg-subtle: #f8fafc;
-            --border: #e2e8f0;
+            --primary: #3b82f6;        /* Vibrant Premium Blue */
+            --primary-hover: #2563eb;  /* Deeper Clickable Blue */
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #ffffff;           /* Crisp White Headlines */
+            --text-main: #e2e8f0;      /* Light Gray Text for readability */
+            --text-muted: #94a3b8;     /* Muted Blue-Gray Text */
+            --bg-main: #0f172a;        /* Requested Immersive Dark Background */
+            --bg-subtle: #1e293b;      /* Sleek Card/Surface Dark Tone */
+            --border: #334155;         /* Subtle Dark Accent Border */
             --radius-lg: 14px;
             --radius-md: 8px;
         }
@@ -37,7 +37,7 @@
         }
 
         .navbar {
-            background-color: var(--bg-main);
+            background-color: var(--bg-subtle);
             border-bottom: 1px solid var(--border);
             padding: 18px 24px;
             text-align: center;
@@ -61,7 +61,7 @@
         /* Feature Tabs Navigation Control Component */
         .tabs-container {
             display: flex;
-            background: var(--bg-subtle);
+            background: var(--bg-main);
             padding: 5px;
             border-radius: var(--radius-lg);
             margin-bottom: 25px;
@@ -86,18 +86,19 @@
         }
 
         .tab-btn.active {
-            background: #ffffff;
-            color: var(--dark);
-            box-shadow: 0 4px 10px -1px rgba(0,0,0,0.05);
+            background: var(--bg-subtle);
+            color: var(--primary);
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 10px -1px rgba(0,0,0,0.2);
         }
 
         /* Main Conversion Tool Workspace Card Styling */
         .converter-card {
-            background: var(--bg-main);
+            background: var(--bg-subtle);
             padding: 40px 30px;
             border-radius: var(--radius-lg);
             border: 1px solid var(--border);
-            box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
             text-align: center;
             margin-bottom: 35px;
         }
@@ -120,17 +121,17 @@
 
         /* Interactive File Processing Drop/Click Area */
         .upload-zone {
-            border: 2px dashed #cbd5e1;
+            border: 2px dashed var(--border);
             padding: 50px 20px;
             border-radius: var(--radius-lg);
-            background-color: var(--bg-subtle);
+            background-color: var(--bg-main);
             cursor: pointer;
             transition: all 0.25s ease;
         }
 
         .upload-zone:hover {
             border-color: var(--primary);
-            background-color: #f0f5ff;
+            background-color: #1e293b;
         }
 
         .upload-icon {
@@ -149,7 +150,7 @@
             grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
             gap: 12px;
             margin-top: 20px;
-            background: var(--bg-subtle);
+            background: var(--bg-main);
             padding: 15px;
             border-radius: var(--radius-lg);
             border: 1px solid var(--border);
@@ -164,7 +165,7 @@
             border-radius: var(--radius-md);
             overflow: hidden;
             border: 1px solid var(--border);
-            background: #cbd5e1;
+            background: #475569;
         }
 
         .thumb-wrapper img {
@@ -199,17 +200,17 @@
             margin-top: 25px;
             width: 100%;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
 
         .btn:hover {
             background-color: var(--primary-hover);
-            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
         }
 
         .btn:disabled {
-            background-color: #cbd5e1;
-            color: #94a3b8;
+            background-color: #334155;
+            color: #64748b;
             cursor: not-allowed;
             box-shadow: none;
         }
@@ -224,65 +225,77 @@
         }
 
         .status-banner.warning {
-            background-color: #fffbeb;
+            background-color: #2d2006;
             border-left: 4px solid var(--warning);
-            color: #92400e;
+            color: #fcd34d;
         }
 
         .status-banner.success {
-            background-color: #ecfdf5;
+            background-color: #062f22;
             border-left: 4px solid var(--success);
-            color: #065f46;
+            color: #6ee7b7;
         }
 
         /* LIVE PREVIEW CONTAINER INTERACTION COMPONENT */
         #preview-container {
-            background: var(--bg-main);
+            background: var(--bg-subtle);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
             padding: 30px;
             margin-bottom: 40px;
             display: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
         }
 
         #preview-container h3 {
             margin-top: 0;
             color: var(--dark);
-            border-bottom: 2px solid var(--bg-subtle);
+            border-bottom: 2px solid var(--border);
             padding-bottom: 12px;
             font-size: 1.15rem;
         }
 
+        /* The canvas frame background stays white so html2pdf renders clean white pages */
         #preview-content {
             background: #ffffff;
             color: #000000;
-            padding: 5px;
+            padding: 20px;
+            border-radius: var(--radius-md);
             min-height: 60px;
             word-wrap: break-word;
+            overflow: hidden;
         }
 
-        /* CRITICAL FULL-PAGE LAYOUT INJECTION ENGINE CSS RULES */
+        /* FIX: AUTOMATIC FULL-PAGE IMAGE CONTAINMENT MATRIX */
         .pdf-image-page-block {
-            page-break-after: always;
+            page-break-after: always !important;
+            page-break-inside: avoid !important;
+            page-break-before: auto !important;
             text-align: center;
             width: 100%;
-            margin: 0;
+            margin: 0 0 20px 0;
             padding: 0;
             box-sizing: border-box;
-            background: #ffffff;
+            background: #ffffff; /* Requested crisp white page background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        /* Forces portrait or landscape uploads to match canvas borders natively */
+        /* FIX: Prevents layout breaking by sizing images to perfectly hit boundaries */
         .pdf-image-page-block img {
-            width: 100% !important;
+            max-width: 100% !important;
+            max-height: 10.8in !important; /* Math fix: Never exceeds full height of a single PDF page */
+            width: auto !important;
             height: auto !important;
+            object-fit: contain;
             display: block;
             margin: 0 auto;
         }
 
         .pdf-image-page-block:last-child {
             page-break-after: avoid !important;
+            margin-bottom: 0;
         }
 
         /* Technical Content Blocks For Google SEO & AdSense Auditing Integrity */
@@ -308,7 +321,7 @@
         }
 
         .benefit-card {
-            background: var(--bg-main);
+            background: var(--bg-subtle);
             padding: 24px;
             border-radius: var(--radius-lg);
             border: 1px solid var(--border);
@@ -322,7 +335,7 @@
         }
 
         .faq-item {
-            background: var(--bg-main);
+            background: var(--bg-subtle);
             padding: 20px;
             border-radius: var(--radius-md);
             border: 1px solid var(--border);
@@ -372,12 +385,12 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(15, 23, 42, 0.4);
+            background-color: rgba(15, 23, 42, 0.7);
             backdrop-filter: blur(4px);
         }
 
         .modal-content {
-            background-color: #ffffff;
+            background-color: var(--bg-subtle);
             margin: 10% auto;
             padding: 35px;
             border-radius: var(--radius-lg);
@@ -386,8 +399,13 @@
             overflow-y: auto;
             text-align: left;
             position: relative;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
             border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .modal-content h2 {
+            color: var(--dark);
         }
 
         .close-modal {
@@ -455,11 +473,11 @@
             <div class="grid-benefits">
                 <div class="benefit-card">
                     <h3>Isomorphic Local Compiles</h3>
-                    <p style="font-size:0.9rem; margin:0; color: var(--text-main);">File translation code executes completely inside the sandbox memory limits of your active tab. Zero records cross over data networks.</p>
+                    <p style="font-size:0.9rem; margin:0; color: var(--text-muted);">File translation code executes completely inside the sandbox memory limits of your active tab. Zero records cross over data networks.</p>
                 </div>
                 <div class="benefit-card">
                     <h3>Synchronized Sizing Core</h3>
-                    <p style="font-size:0.9rem; margin:0; color: var(--text-main);">The automated script automatically normalizes widescreen graphic arrays and multi-shot phone camera photos into full-bleed matching outputs.</p>
+                    <p style="font-size:0.9rem; margin:0; color: var(--text-muted);">The automated script automatically normalizes widescreen graphic arrays and multi-shot phone camera photos into full-bleed matching outputs.</p>
                 </div>
             </div>
         </div>
@@ -650,7 +668,7 @@
                     thumb.innerHTML = `<img src="${base64Data}"><span class="thumb-counter">${i + 1}</span>`;
                     imagePreviewGrid.appendChild(thumb);
 
-                    // FIXED: Structured full-bleed container nodes injected into live layout viewport
+                    // FIXED: Continuous block node configuration that binds image perfectly on one page
                     const pageBlock = document.createElement('div');
                     pageBlock.className = 'pdf-image-page-block';
                     pageBlock.innerHTML = `<img src="${base64Data}">`;
@@ -682,7 +700,7 @@
             const targetName = (currentMode === 'word') ? cachedWordName : "image-compilation-output";
 
             setTimeout(() => {
-                // FIXED: Automatically adapts margins based on the current utility tab selected
+                // Image conversions use 0 margins so max-height css property scales fully to page borders
                 const printMargin = (currentMode === 'word') ? 0.4 : 0;
 
                 const opt = {
@@ -691,7 +709,7 @@
                     image:        { type: 'jpeg', quality: 0.98 },
                     html2canvas:  { scale: 2, useCORS: true, logging: false },
                     jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
-                    pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+                    pagebreak:    { mode: ['css', 'legacy'] }
                 };
 
                 html2pdf().set(opt).from(previewContent).save().then(() => {
@@ -712,3 +730,4 @@
     </script>
 </body>
 </html>
+      
