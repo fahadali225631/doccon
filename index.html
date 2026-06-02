@@ -550,4 +550,137 @@
                 fileLabel.innerHTML = `Selected: <b>${file.name}</b>`;
                 statusBox.innerHTML = `
                     <div class="status-banner warning">
-                        <b>⚠️ Legacy Form
+                        <b>⚠️ Legacy Format Warning:</b> The system caught your <b>.doc</b> file successfully. However, vintage file layers are binary formats unreadable by client browsers. Please launch this file inside Word or Google Docs, hit 'Save As', transform it to a modern <b>.docx</b> format, and try converting again!
+                    </div>`;
+                convertBtn.disabled = true;
+                cachedWordBuffer = null;
+                return;
+            }
+
+            fileLabel.innerHTML = `Analyzing Data: <b>${file.name}</b> (${sizeMB} MB)...`;
+            statusBox.innerHTML = '';
+
+            try {
+                cachedWordBuffer = await file.arrayBuffer();
+                cachedWordName = file.name.replace(/\.[^/.]+$/, "");
+                statusBox.innerHTML = `
+                    <div class="status-banner success">
+                        <b>✓ Open XML Validated:</b> Ready to translate local internal data streams into high-definition portable frames.
+                    </div>`;
+                fileLabel.innerHTML = `Selected: <b>${file.name}</b>`;
+                convertBtn.disabled = false;
+            } catch (err) {
+                statusBox.innerHTML = `<div class="status-banner warning"><b>Error:</b> Local array mapping fail. Structural context break within stream channels.</div>`;
+            }
+        });
+
+        // ==========================================
+        // FEATURE PIPELINE TWO: IMAGE TO PDF CORE HANDLES
+        // ==========================================
+        imageInput.addEventListener('change', async function(e) {
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+
+            fileLabel.innerHTML = `Parsing Layouts for <b>${files.length}</b> Photo Assets...`;
+            statusBox.innerHTML = '';
+            imagePreviewGrid.innerHTML = '';
+            cachedImageArray = [];
+
+            let processedCount = 0;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+
+                reader.onload = function(event) {
+                    const base64Data = event.target.result;
+                    cachedImageArray.push(base64Data);
+
+                    // Append interactive thumbnail elements to display operational feedback
+                    const thumb = document.createElement('div');
+                    thumb.className = 'thumb-wrapper';
+                    thumb.innerHTML = `<img src="${base64Data}"><span class="thumb-counter">${i + 1}</span>`;
+                    imagePreviewGrid.appendChild(thumb);
+
+                    processedCount++;
+                    if (processedCount === files.length) {
+                        fileLabel.innerHTML = `Selected: <b>${files.length} Images Loaded</b>`;
+                        statusBox.innerHTML = `
+                            <div class="status-banner success">
+                                <b>✓ Gallery Array Standardized:</b> Compiled image targets into rendering chains. Ready to build PDF layers.
+                            </div>`;
+                        convertBtn.disabled = false;
+                    }
+                };
+
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // ==========================================
+        // LOCAL RENDERING EXECUTION ACTION PIPELINE
+        // ==========================================
+        convertBtn.addEventListener('click', function() {
+            convertBtn.disabled = true;
+
+            if (currentMode === 'word') {
+                if (!cachedWordBuffer) return;
+                convertBtn.innerText = "Parsing XML Components...";
+
+                mammoth.convertToHtml({ arrayBuffer: cachedWordBuffer })
+                    .then(function(result) {
+                        renderCanvas.innerHTML = result.value || `<p style='color:red;'>Abstract empty node error.</p>`;
+                        executePdfDownload(cachedWordName);
+                    })
+                    .catch(function() {
+                        statusBox.innerHTML = `<div class="status-banner warning"><b>Conversion Error:</b> Local layout engine failed structural matrix extraction.</div>`;
+                        convertBtn.innerText = "Download as PDF";
+                        convertBtn.disabled = false;
+                    });
+            } else {
+                if (cachedImageArray.length === 0) return;
+                convertBtn.innerText = "Structuring Target Resolution Elements...";
+
+                renderCanvas.innerHTML = ''; // Wipe container clean
+                
+                // Programmatically structuralize standalone high-definition asset blocks matching clean system output limits
+                cachedImageArray.forEach(imgData => {
+                    const pageBlock = document.createElement('div');
+                    pageBlock.className = 'pdf-page-block';
+                    pageBlock.innerHTML = `<img src="${imgData}">`;
+                    renderCanvas.appendChild(pageBlock);
+                });
+
+                executePdfDownload("image-compilation-output");
+            }
+        });
+
+        function executePdfDownload(outputTitle) {
+            convertBtn.innerText = "Rendering Canvas Assets...";
+            
+            // High fidelity mobile engine option mapping specs
+            const opt = {
+                margin:       0.2,
+                filename:     outputTitle + '.pdf',
+                image:        { type: 'jpeg', quality: 0.96 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(renderCanvas).save().then(() => {
+                convertBtn.innerText = "Download as PDF";
+                convertBtn.disabled = false;
+                renderCanvas.innerHTML = ''; // Clean runtime heap space leaks
+            }).catch(err => {
+                convertBtn.innerText = "Download as PDF";
+                convertBtn.disabled = false;
+            });
+        }
+
+        // Operational Modal Infrastructure Hooks
+        function openModal(id) { document.getElementById(id).style.display = "block"; }
+        function closeModal(id) { document.getElementById(id).style.display = "none"; }
+        window.onclick = function(e) { if (e.target.classList.contains('modal')) e.target.style.display = "none"; }
+    </script>
+</body>
+</html>
