@@ -29,6 +29,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             text-align: center;
             margin-top: 40px;
+            box-sizing: border-box;
         }
         h1 { color: #2c3e50; margin-bottom: 5px; }
         p.subtitle { color: #7f8c8d; margin-top: 0; margin-bottom: 25px; }
@@ -60,6 +61,32 @@
         }
         .btn:disabled { background-color: #bdc3c7; cursor: not-allowed; }
         
+        /* Document Preview Container */
+        #preview-container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-top: 20px;
+            text-align: left;
+            display: none;
+            box-sizing: border-box;
+        }
+        #preview-container h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+        #preview {
+            background: white;
+            color: #000000;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+
         .seo-section {
             max-width: 600px;
             width: 100%;
@@ -84,6 +111,12 @@
         <button class="btn" id="convertBtn" disabled>Download as PDF</button>
     </div>
 
+    <!-- Visible Active Preview Section for Layout Engine Alignment -->
+    <div id="preview-container">
+        <h3>Document Preview</h3>
+        <div id="preview"></div>
+    </div>
+
     <div class="seo-section">
         <hr>
         <h2>Why Use a Client-Side Document Converter?</h2>
@@ -97,7 +130,7 @@
         let fileData = null;
         let fileName = "converted-document";
 
-        // Read file contents into an ArrayBuffer
+        // Read file content locally
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -113,7 +146,7 @@
             reader.readAsArrayBuffer(file);
         });
 
-        // Convert file data programmatically
+        // Convert data stream and build structural layout
         document.getElementById('convertBtn').addEventListener('click', function() {
             if (!fileData) return;
             
@@ -121,32 +154,33 @@
             convertBtn.innerText = "Processing File...";
             convertBtn.disabled = true;
 
-            // Use Mammoth to turn your Word file elements into raw semantic HTML
+            // Generate raw HTML layouts from binary contents
             mammoth.convertToHtml({ arrayBuffer: fileData })
                 .then(function(result) {
+                    const previewContainer = document.getElementById('preview-container');
+                    const previewElement = document.getElementById('preview');
                     
-                    // FIXED: Create a fresh layout container entirely in system memory
-                    const workerElement = document.createElement('div');
-                    workerElement.style.width = '8.5in';
-                    workerElement.style.padding = '0.5in';
-                    workerElement.style.backgroundColor = '#ffffff';
-                    workerElement.style.color = '#000000';
-                    workerElement.innerHTML = result.value; 
+                    // Inject text contents and reveal the panel instantly
+                    previewElement.innerHTML = result.value;
+                    previewContainer.style.opacity = "1";
+                    previewContainer.style.display = 'block';
 
-                    // Define rendering properties for the virtual lens package
-                    const opt = {
-                        margin:       0.5,
-                        filename:     fileName + '.pdf',
-                        image:        { type: 'jpeg', quality: 0.98 },
-                        html2canvas:  { scale: 2, useCORS: true, logging: false },
-                        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-                    };
-                    
-                    // Directly point the engine to your in-memory element structure
-                    html2pdf().set(opt).from(workerElement).save().then(() => {
-                        convertBtn.innerText = "Download as PDF";
-                        convertBtn.disabled = false;
-                    });
+                    // Give mobile devices 200ms to calculate fonts before execution
+                    setTimeout(() => {
+                        const opt = {
+                            margin:       0.5,
+                            filename:     fileName + '.pdf',
+                            image:        { type: 'jpeg', quality: 0.98 },
+                            html2canvas:  { scale: 2, useCORS: true, logging: false },
+                            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                        };
+                        
+                        // Capture layout directly from the verified visible container
+                        html2pdf().set(opt).from(previewElement).save().then(() => {
+                            convertBtn.innerText = "Download as PDF";
+                            convertBtn.disabled = false;
+                        });
+                    }, 200);
                 })
                 .catch(function(err) {
                     alert("Error parsing Word document structural layout.");
