@@ -93,7 +93,7 @@
             border-radius: 16px;
             box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05);
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
 
         h1 {
@@ -225,6 +225,57 @@
             color: #065f46;
         }
 
+        /* LIVE PREVIEW CONTAINER SYSTEM (Fixes the Empty PDF Bug completely) */
+        #preview-container {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 40px;
+            display: none;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        #preview-container h3 {
+            margin-top: 0;
+            color: var(--dark);
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 10px;
+        }
+
+        #preview-content {
+            background: #ffffff;
+            color: #000000;
+            padding: 15px;
+            min-height: 100px;
+            word-wrap: break-word;
+        }
+
+        /* High-fidelity layout rendering engine specs */
+        .pdf-page-block {
+            page-break-after: always;
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed #cbd5e1;
+        }
+
+        .pdf-page-block:last-child {
+            page-break-after: avoid;
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .pdf-page-block img {
+            max-width: 100%;
+            height: auto;
+            max-height: 650px;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
         /* Technical Content Sections */
         .info-section {
             margin-bottom: 35px;
@@ -277,31 +328,6 @@
             margin: 0;
             color: #475569;
             font-size: 0.95rem;
-        }
-
-        /* FIX: Canvas is built off-screen instead of display:none so html2pdf calculates dimensions flawlessly */
-        #render-canvas {
-            position: absolute;
-            left: -9999px;
-            top: 0;
-            width: 750px; 
-            background: white;
-            color: black;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .pdf-page-block {
-            page-break-after: always;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .pdf-page-block img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 0 auto;
         }
 
         footer {
@@ -390,7 +416,10 @@
             <button class="btn" id="convertBtn" disabled>Download as PDF</button>
         </div>
 
-        <div id="render-canvas"></div>
+        <div id="preview-container">
+            <h3>✨ Live Document Preview Canvas</h3>
+            <div id="preview-content"></div>
+        </div>
 
         <div class="info-section">
             <h2>User Operations Blueprint</h2>
@@ -475,7 +504,8 @@
         const convertBtn = document.getElementById('convertBtn');
         const statusBox = document.getElementById('statusBox');
         const imagePreviewGrid = document.getElementById('imagePreviewGrid');
-        const renderCanvas = document.getElementById('render-canvas');
+        const previewContainer = document.getElementById('preview-container');
+        const previewContent = document.getElementById('preview-content');
 
         function switchTab(mode) {
             if (currentMode === mode) return;
@@ -516,11 +546,15 @@
             cachedImageArray = [];
             statusBox.innerHTML = '';
             imagePreviewGrid.innerHTML = '';
+            previewContent.innerHTML = '';
+            previewContainer.style.display = 'none';
             convertBtn.disabled = true;
             convertBtn.innerText = "Download as PDF";
         }
 
-        // WORD PROCESSOR LINE
+        // ==========================================
+        // WORD FILE CONTROLLER PIPELINE
+        // ==========================================
         wordInput.addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -536,6 +570,7 @@
                     </div>`;
                 convertBtn.disabled = true;
                 cachedWordBuffer = null;
+                previewContainer.style.display = 'none';
                 return;
             }
 
@@ -545,18 +580,28 @@
             try {
                 cachedWordBuffer = await file.arrayBuffer();
                 cachedWordName = file.name.replace(/\.[^/.]+$/, "");
-                statusBox.innerHTML = `
-                    <div class="status-banner success">
-                        <b>✓ Open XML Validated:</b> Ready to translate local internal data streams into high-definition portable frames.
-                    </div>`;
-                fileLabel.innerHTML = `Selected: <b>${file.name}</b>`;
-                convertBtn.disabled = false;
+                
+                // Instantly generate structural HTML preview layout to make it readable for user and html2pdf
+                mammoth.convertToHtml({ arrayBuffer: cachedWordBuffer })
+                    .then(function(result) {
+                        previewContent.innerHTML = result.value || `<p style="color:var(--danger);">Empty framework layout structure.</p>`;
+                        previewContainer.style.display = 'block';
+                        
+                        statusBox.innerHTML = `
+                            <div class="status-banner success">
+                                <b>✓ Open XML Validated:</b> Document parsed. View live structures in preview frame below, then trigger download execution.
+                            </div>`;
+                        fileLabel.innerHTML = `Selected: <b>${file.name}</b>`;
+                        convertBtn.disabled = false;
+                    });
             } catch (err) {
-                statusBox.innerHTML = `<div class="status-banner warning"><b>Error:</b> Local array mapping fail.</div>`;
+                statusBox.innerHTML = `<div class="status-banner warning"><b>Error:</b> Local data mapping fail inside file stream data arrays.</div>`;
             }
         });
 
-        // IMAGE PROCESSOR LINE
+        // ==========================================
+        // MULTI-IMAGE CONVERT UTILITY PIPELINE
+        // ==========================================
         imageInput.addEventListener('change', async function(e) {
             const files = Array.from(e.target.files);
             if (files.length === 0) return;
@@ -564,6 +609,7 @@
             fileLabel.innerHTML = `Parsing Layouts for <b>${files.length}</b> Photo Assets...`;
             statusBox.innerHTML = '';
             imagePreviewGrid.innerHTML = '';
+            previewContent.innerHTML = '';
             cachedImageArray = [];
 
             let processedCount = 0;
@@ -576,17 +622,25 @@
                     const base64Data = event.target.result;
                     cachedImageArray.push(base64Data);
 
+                    // Add to dashboard gallery grid thumbnails
                     const thumb = document.createElement('div');
                     thumb.className = 'thumb-wrapper';
                     thumb.innerHTML = `<img src="${base64Data}"><span class="thumb-counter">${i + 1}</span>`;
                     imagePreviewGrid.appendChild(thumb);
 
+                    // Construct live printable sequence structures inside the live print preview container
+                    const pageBlock = document.createElement('div');
+                    pageBlock.className = 'pdf-page-block';
+                    pageBlock.innerHTML = `<img src="${base64Data}">`;
+                    previewContent.appendChild(pageBlock);
+
                     processedCount++;
                     if (processedCount === files.length) {
+                        previewContainer.style.display = 'block';
                         fileLabel.innerHTML = `Selected: <b>${files.length} Images Loaded</b>`;
                         statusBox.innerHTML = `
                             <div class="status-banner success">
-                                <b>✓ Gallery Array Standardized:</b> Compiled image targets into rendering chains. Ready to build PDF layers.
+                                <b>✓ Gallery Array Standardized:</b> Canvas map verified below. Ready to build static high-definition PDF book.
                             </div>`;
                         convertBtn.disabled = false;
                     }
@@ -596,61 +650,36 @@
             }
         });
 
-        // EXECUTION ENGINE CLICK
+        // ==========================================
+        // VIRTUAL PRINTER EXECUTION LAYER
+        // ==========================================
         convertBtn.addEventListener('click', function() {
             convertBtn.disabled = true;
+            convertBtn.innerText = "Processing Output Frames...";
 
-            if (currentMode === 'word') {
-                if (!cachedWordBuffer) return;
-                convertBtn.innerText = "Parsing XML Components...";
+            const targetName = (currentMode === 'word') ? cachedWordName : "image-compilation-output";
 
-                mammoth.convertToHtml({ arrayBuffer: cachedWordBuffer })
-                    .then(function(result) {
-                        renderCanvas.innerHTML = result.value || `<p style='color:red;'>Abstract empty node error.</p>`;
-                        executePdfDownload(cachedWordName);
-                    })
-                    .catch(function() {
-                        statusBox.innerHTML = `<div class="status-banner warning"><b>Conversion Error:</b> Local layout engine failed.</div>`;
-                        convertBtn.innerText = "Download as PDF";
-                        convertBtn.disabled = false;
-                    });
-            } else {
-                if (cachedImageArray.length === 0) return;
-                convertBtn.innerText = "Structuring Target Resolution Elements...";
+            // Allow rendering engine thread buffer to stabilize fully before action execution snap
+            setTimeout(() => {
+                const opt = {
+                    margin:       0.4,
+                    filename:     targetName + '.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true, logging: false },
+                    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                };
 
-                renderCanvas.innerHTML = ''; 
-                
-                cachedImageArray.forEach(imgData => {
-                    const pageBlock = document.createElement('div');
-                    pageBlock.className = 'pdf-page-block';
-                    pageBlock.innerHTML = `<img src="${imgData}">`;
-                    renderCanvas.appendChild(pageBlock);
+                // Targets live completely visible elements now to eliminate empty rendering captures
+                html2pdf().set(opt).from(previewContent).save().then(() => {
+                    convertBtn.innerText = "Download as PDF";
+                    convertBtn.disabled = false;
+                }).catch(err => {
+                    convertBtn.innerText = "Download as PDF";
+                    convertBtn.disabled = false;
+                    alert("Error processing local rendering snapshot variables.");
                 });
-
-                executePdfDownload("image-compilation-output");
-            }
+            }, 300);
         });
-
-        function executePdfDownload(outputTitle) {
-            convertBtn.innerText = "Rendering Canvas Assets...";
-            
-            const opt = {
-                margin:       0.4,
-                filename:     outputTitle + '.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false },
-                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
-
-            html2pdf().set(opt).from(renderCanvas).save().then(() => {
-                convertBtn.innerText = "Download as PDF";
-                convertBtn.disabled = false;
-                renderCanvas.innerHTML = ''; 
-            }).catch(err => {
-                convertBtn.innerText = "Download as PDF";
-                convertBtn.disabled = false;
-            });
-        }
 
         function openModal(id) { document.getElementById(id).style.display = "block"; }
         function closeModal(id) { document.getElementById(id).style.display = "none"; }
