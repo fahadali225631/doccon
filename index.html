@@ -28,7 +28,7 @@
 
     <div class="container">
         <h1>DocCon</h1>
-        <p class="subtitle">Convert Word Documents to PDF Instantly</p>
+        <p class="subtitle">Convert Modern Word Documents (.docx) to PDF Instantly</p>
         
         <div class="upload-box" onclick="document.getElementById('fileInput').click()">
             <p id="file-label">Tap to select your .docx file here</p>
@@ -53,22 +53,27 @@
         const previewContainer = document.getElementById('preview-container');
         const previewElement = document.getElementById('preview');
 
-        // Reset the input so tapping the same file twice doesn't freeze the app
         fileInput.addEventListener('click', function() {
             this.value = null; 
         });
 
-        // Modern file reading using async/await and arrayBuffer (Bypasses mobile memory limits)
         fileInput.addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (!file) return;
+            
+            // FIX: Stop old .doc files right here and warn the user gently
+            if (file.name.toLowerCase().endsWith('.doc')) {
+                fileLabel.innerHTML = `<span class="error-text">⚠️ Old .doc format detected. This app only converts modern .docx files. Please convert your file to .docx first!</span>`;
+                convertBtn.disabled = true;
+                fileData = null;
+                return;
+            }
             
             const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
             fileLabel.innerHTML = `Loading: <b>${file.name}</b> (${fileSizeMB} MB)...`;
             convertBtn.disabled = true;
             
             try {
-                // This modern method is much safer for 1MB+ files on mobile
                 const buffer = await file.arrayBuffer();
                 fileData = buffer;
                 fileName = file.name.replace(/\.[^/.]+$/, ""); 
@@ -76,28 +81,26 @@
                 fileLabel.innerHTML = `<span style="color: #2ecc71;">Selected:</span> <b>${file.name}</b>`;
                 convertBtn.disabled = false;
             } catch(err) {
-                fileLabel.innerHTML = `<span class="error-text">Failed to load file. It might be corrupted or locked by your phone.</span>`;
+                fileLabel.innerHTML = `<span class="error-text">Failed to load file data.</span>`;
             }
         });
 
         convertBtn.addEventListener('click', function() {
             if (!fileData) return;
             
-            convertBtn.innerText = "Processing...";
+            convertBtn.innerText = "Processing Document...";
             convertBtn.disabled = true;
 
             mammoth.convertToHtml({ arrayBuffer: fileData })
                 .then(function(result) {
                     previewContainer.style.display = 'block';
 
-                    // If Mammoth outputs nothing, the document is using unsupported complex formatting
                     if (!result.value || result.value.trim() === "") {
-                        previewElement.innerHTML = `<p class="error-text">⚠️ Warning: We could not find any standard text in this document. It may contain floating text boxes, complex tables, or unsupported objects resulting in a blank PDF.</p>`;
+                        previewElement.innerHTML = `<p class="error-text">⚠️ Warning: We couldn't extract readable text layout from this .docx file. It might contain unsupported layouts.</p>`;
                     } else {
                         previewElement.innerHTML = result.value;
                     }
 
-                    // Force mobile browser to render images before converting
                     setTimeout(() => {
                         convertBtn.innerText = "Generating PDF...";
                         
@@ -105,7 +108,7 @@
                             margin:       0.5,
                             filename:     fileName + '.pdf',
                             image:        { type: 'jpeg', quality: 0.98 },
-                            html2canvas:  { scale: 2, useCORS: true, windowWidth: 800 }, // windowWidth prevents mobile squishing
+                            html2canvas:  { scale: 2, useCORS: true, windowWidth: 800 },
                             jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
                         };
                         
