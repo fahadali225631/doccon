@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="DocCon - Free premium online tool to convert Word documents (.docx) and Images (JPG, PNG) to PDF instantly in your browser.">
-    <title>DocCon - Premium Online Word & Image to PDF Converter</title>
+    <meta name="description" content="DocCon Ultimate - Free professional online tool to convert Word documents (.docx) and Images (JPG, PNG) to PDF instantly in your browser with high-fidelity formatting.">
+    <title>DocCon Ultimate - Premium Online Word & Image to PDF Converter</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://unpkg.com/docx-preview/dist/docx-preview.min.js"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -203,7 +202,7 @@
             background: var(--bg-subtle);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
-            padding: 30px;
+            padding: 20px;
             margin-bottom: 40px;
             display: none;
             overflow-x: auto;
@@ -215,6 +214,7 @@
             border-radius: var(--radius-md);
         }
 
+        /* Screen Presentation Styling for the Live UI Viewport */
         .docx-wrapper {
             background: var(--bg-main) !important;
             padding: 20px 0 !important;
@@ -222,23 +222,8 @@
         }
         
         .docx-wrapper > section.docx {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5) !important;
-            margin-bottom: 20px !important;
-            page-break-after: always !important;
-        }
-
-        /* FIX: Absolute Layout override to strip the empty space gap at the top of the PDF */
-        .pdf-export-mode .docx-wrapper {
-            background: #ffffff !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            display: block !important; /* Disables flex container behavior which causes the top space glitch */
-        }
-        
-        .pdf-export-mode .docx-wrapper > section.docx {
-            box-shadow: none !important;
-            margin: 0 auto !important;
-            padding-top: 0 !important; /* Pulls content directly back to the top edge */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6) !important;
+            margin-bottom: 25px !important;
         }
 
         .pdf-image-page-block {
@@ -258,6 +243,7 @@
             display: inline-block !important;
         }
 
+        /* Premium Optimized AdSense / SEO Layout Sections */
         .seo-section {
             background: var(--bg-subtle);
             border: 1px solid var(--border);
@@ -270,6 +256,7 @@
             border-bottom: 1px solid var(--border);
             padding-bottom: 10px;
             margin-bottom: 20px;
+            font-size: 1.35rem;
         }
 
         .seo-section p, .seo-section li {
@@ -293,7 +280,7 @@
     </style>
 </head>
 <body>
-<div class="navbar">Doc<span>Con</span> Ultimate</div>
+    <div class="navbar">Doc<span>Con</span> Ultimate</div>
 
     <div class="main-wrapper">
         
@@ -325,24 +312,24 @@
         </div>
 
         <div class="seo-section">
-            <h2>How to Convert Files to PDF</h2>
-            <p>Welcome to DocCon, your reliable, secure, and fast solution for document and image conversions. Whether you need to turn a text document into a shareable file or compile a photo gallery into a secure document format, our platform processes everything directly within your browser ensuring absolute privacy.</p>
-            
+            <h2>User Guide: How to Convert Documents to PDF</h2>
+            <p>Welcome to DocCon Ultimate, your trusted utility workspace for instant document conversion. Our tool runs locally in your web browser, ensuring your files are never exposed to remote servers. Follow these basic steps to convert your work:</p>
             <ul>
-                <li><b>Step 1:</b> Select your preferred conversion mode from the top menu (Word to PDF or Image to PDF).</li>
-                <li><b>Step 2:</b> Click the upload area to select your files. For Word, we support standard <b>.docx</b> formats. For images, you can select multiple JPG, PNG, or WebP files at once.</li>
-                <li><b>Step 3:</b> Preview your content to ensure accuracy. Click "Download as PDF" to instantly generate your finalized file.</li>
+                <li><b>Step 1:</b> Select the conversion module matching your requirements using the top navigation switcher.</li>
+                <li><b>Step 2:</b> Click the interactive workspace upload panel to import your source files. The text conversion portal works with standard <b>.docx</b> files, while the graphics engine accepts multiple image layers.</li>
+                <li><b>Step 3:</b> Verify layout integrity inside our integrated live viewport panel. Press "Download as PDF" to compile your output document asset.</li>
             </ul>
 
-            <h2>Why Choose DocCon?</h2>
-            <p>Our platform is built on a client-side architecture. This means your files are never uploaded to remote servers. All text processing and image formatting happens utilizing your device's memory, ensuring zero data-logging and maximum speed.</p>
+            <h2>Key Features & Architecture Optimization</h2>
+            <p>Traditional conversion engines strip away core formatting elements or rely on heavy server calls that risk your privacy. DocCon Ultimate works differently by reading layout files directly via locally executed script structures:</p>
             <ul>
-                <li><b>Smart Image Sizing:</b> Unlike traditional converters that leave awkward white borders, our image engine automatically calculates the dimensions of your photos to stretch edge-to-edge.</li>
-                <li><b>Style Preservation:</b> We utilize an advanced document rendering system that reads your headers, colors, fonts, and layouts to ensure your document looks exactly the way you authored it.</li>
+                <li><b>Style Matching Layouts:</b> Font mappings, table boundaries, headings, text alignments, and background coloring patterns are retained as defined by the original document author.</li>
+                <li><b>No Page Break Bleed:</b> Built-in margin isolation barriers ensure sentences and table cells do not get sheared horizontally across document break points.</li>
+                <li><b>Pixel-Perfect Graphic Packing:</b> Images are sized dynamically based on native proportions to create clean layouts without stretching.</li>
             </ul>
 
-            <h2>Terms of Use & Privacy Policy</h2>
-            <p>By using DocCon, you agree that you are responsible for the files you process. We do not store, view, or analyze your personal documents. All operations are strictly local. This service is provided "as is" without warranty. Ensure you have the rights to the documents and images you are converting.</p>
+            <h2>Terms of Service & Privacy Declarations</h2>
+            <p>By using the local operational utilities provided on this web platform, you acknowledge that all computing processes occur entirely inside your local system environment. No document parsing logs are generated, maintained, or processed by our infrastructure. This utility tool is distributed "as is" without liability or structural warranty. Users must ensure they hold appropriate licensing or usage rights for files submitted to the local conversion viewport.</p>
         </div>
 
     </div>
@@ -398,10 +385,9 @@
             statusBox.innerHTML = ''; imagePreviewGrid.innerHTML = '';
             previewContent.innerHTML = ''; previewContainer.style.display = 'none';
             convertBtn.disabled = true; convertBtn.innerText = "Download as PDF";
-            previewContent.classList.remove('pdf-export-mode');
         }
 
-        // WORD TO PDF CONVERSION PIPELINE
+        // WORD TO PDF ENGINE PIPELINE
         wordInput.addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -486,35 +472,88 @@
             convertBtn.innerText = "Building PDF File...";
 
             if (currentMode === 'word') {
+                const originalWrapper = previewContent.querySelector('.docx-wrapper');
+                if (!originalWrapper) {
+                    convertBtn.innerText = "Error - Try Again";
+                    convertBtn.disabled = false;
+                    return;
+                }
+
+                const firstSection = originalWrapper.querySelector('section.docx');
+                const targetWidth = firstSection ? firstSection.offsetWidth : 816;
                 
-                // Activates layout conversion block rules to remove top space bug
-                previewContent.classList.add('pdf-export-mode');
+                // Dynamically computes aspect ratio mapping (Letter vs A4 sizing in inches)
+                const targetWidthInches = targetWidth / 96;
+                const targetHeightInches = firstSection ? (firstSection.offsetHeight / 96) : 11;
 
-                setTimeout(() => {
-                    const opt = {
-                        margin:       0, 
-                        filename:     cachedWordName + '.pdf',
-                        image:        { type: 'jpeg', quality: 1.0 },
-                        html2canvas:  { 
-                            scale: 2, 
-                            useCORS: true, 
-                            logging: false,
-                            windowWidth: previewContent.scrollWidth 
-                        },
-                        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
-                        pagebreak:    { mode: ['css'] } 
-                    };
-
-                    html2pdf().set(opt).from(previewContent).save().then(() => {
-                        convertBtn.innerText = "Download as PDF";
-                        convertBtn.disabled = false;
-                        previewContent.classList.remove('pdf-export-mode'); 
-                    }).catch(() => {
-                        convertBtn.innerText = "Error - Try Again";
-                        convertBtn.disabled = false;
-                        previewContent.classList.remove('pdf-export-mode'); 
-                    });
-                }, 300);
+                // FIX: Creates an absolute rendering sandbox at 0,0 position to eliminate html2canvas offset gaps
+               const isolatedWorkspace = document.createElement('div');
+                isolatedWorkspace.id = 'pdf-isolated-sandbox';
+                isolatedWorkspace.style.position = 'absolute';
+                isolatedWorkspace.style.top = '0';
+                isolatedWorkspace.style.left = '0';
+                isolatedWorkspace.style.width = targetWidth + 'px';
+                isolatedWorkspace.style.background = '#ffffff';
+                isolatedWorkspace.style.margin = '0';
+                isolatedWorkspace.style.padding = '0';
+                isolatedWorkspace.style.zIndex = '-999999'; 
+                isolatedWorkspace.style.opacity = '1';
+                
+                const clonedContent = originalWrapper.cloneNode(true);
+                clonedContent.style.background = '#ffffff';
+                clonedContent.style.padding = '0';
+                clonedContent.style.margin = '0';
+                clonedContent.style.width = '100%';
+                clonedContent.style.display = 'block';
+                
+                // Clean styles across child nodes to prevent alignment shifting
+                const clonedSections = clonedContent.querySelectorAll('section.docx');
+                clonedSections.forEach((sec, idx) => {
+                    sec.style.boxShadow = 'none';
+                    sec.style.margin = '0 auto';
+                    sec.style.paddingTop = '0';
+                    sec.style.marginBottom = '0';
+                    if (idx > 0) {
+                        sec.style.pageBreakBefore = 'always';
+                        sec.style.breakBefore = 'page';
+                    }
+                });
+                
+                isolatedWorkspace.appendChild(clonedContent);
+                document.body.appendChild(isolatedWorkspace);
+                
+                // High-fidelity capture definition
+                const opt = {
+                    margin:       0,
+                    filename:     cachedWordName + '.pdf',
+                    image:        { type: 'jpeg', quality: 1.0 },
+                    html2canvas:  { 
+                        scale: 2, 
+                        useCORS: true, 
+                        logging: false,
+                        width: targetWidth,
+                        windowWidth: targetWidth, // FIX: Locks text boundaries to stop mobile responsive wrapping distortions
+                        scrollX: 0,
+                        scrollY: 0,
+                        x: 0,
+                        y: 0
+                    },
+                    jsPDF:        { unit: 'in', format: [targetWidthInches, targetHeightInches], orientation: 'portrait' },
+                    pagebreak:    { mode: ['css', 'legacy'] }
+                };
+                
+                html2pdf().set(opt).from(isolatedWorkspace).save().then(() => {
+                    document.body.removeChild(isolatedWorkspace);
+                    convertBtn.innerText = "Download as PDF";
+                    convertBtn.disabled = false;
+                }).catch((err) => {
+                    console.error(err);
+                    if (document.getElementById('pdf-isolated-sandbox')) {
+                        document.body.removeChild(isolatedWorkspace);
+                    }
+                    convertBtn.innerText = "Error - Try Again";
+                    convertBtn.disabled = false;
+                });
 
             } else {
                 // Exact Sizing Image-to-PDF Logic (UNTOUCHED)
