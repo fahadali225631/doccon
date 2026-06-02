@@ -6,7 +6,10 @@
     <meta name="description" content="DocCon - Free premium online tool to convert Word documents (.docx) and Images (JPG, PNG) to PDF instantly in your browser.">
     <title>DocCon - Premium Online Word & Image to PDF Converter</title>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <!-- FIX: Replaced mammoth with jszip and docx-preview to preserve ALL colors, fonts, and layouts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://unpkg.com/docx-preview/dist/docx-preview.min.js"></script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -204,25 +207,37 @@
             padding: 30px;
             margin-bottom: 40px;
             display: none;
+            overflow-x: auto; /* Allows horizontal scroll for wide layouts */
         }
 
+        /* FIX: Removed 'overflow: hidden' to prevent text cutting off at the bottom */
         #preview-content {
-            background: #ffffff;
             color: #000000;
             padding: 0;
             border-radius: var(--radius-md);
-            overflow: hidden;
         }
 
-        /* FIX: Prevent text from splitting in half during PDF page breaks */
-        #preview-content p, 
-        #preview-content h1, 
-        #preview-content h2, 
-        #preview-content h3, 
-        #preview-content li, 
-        #preview-content table {
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
+        /* UI Styling for the Document preview */
+        .docx-wrapper {
+            background: var(--bg-main) !important;
+            padding: 20px 0 !important;
+            border-radius: 8px;
+        }
+        
+        .docx-wrapper > section.docx {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5) !important;
+            margin-bottom: 20px !important;
+            page-break-after: always !important; /* Forces clean page breaks */
+        }
+
+        /* FIX: "Export Mode" CSS dynamically removes shadows/backgrounds just before PDF conversion */
+        .pdf-export-mode .docx-wrapper {
+            background: #ffffff !important;
+            padding: 0 !important;
+        }
+        .pdf-export-mode .docx-wrapper > section.docx {
+            box-shadow: none !important;
+            margin-bottom: 0 !important;
         }
 
         .pdf-image-page-block {
@@ -242,7 +257,6 @@
             display: inline-block !important;
         }
 
-        /* SEO & AdSense Content Section */
         .seo-section {
             background: var(--bg-subtle);
             border: 1px solid var(--border);
@@ -309,6 +323,7 @@
             <div id="preview-content"></div>
         </div>
 
+        <!-- SEO / AdSense Content Wrapper -->
         <div class="seo-section">
             <h2>How to Convert Files to PDF</h2>
             <p>Welcome to DocCon, your reliable, secure, and fast solution for document and image conversions. Whether you need to turn a text document into a shareable file or compile a photo gallery into a secure document format, our platform processes everything directly within your browser ensuring absolute privacy.</p>
@@ -323,7 +338,7 @@
             <p>Our platform is built on a client-side architecture. This means your files are never uploaded to remote servers. All text processing and image formatting happens utilizing your device's memory, ensuring zero data-logging and maximum speed.</p>
             <ul>
                 <li><b>Smart Image Sizing:</b> Unlike traditional converters that leave awkward white borders, our image engine automatically calculates the dimensions of your photos to stretch edge-to-edge.</li>
-                <li><b>Smart Page Breaks:</b> Our document parser respects paragraph limits and guarantees your text won't be sliced horizontally across pages.</li>
+                <li><b>Style Preservation:</b> We utilize an advanced document rendering system that reads your headers, colors, fonts, and layouts to ensure your document looks exactly the way you authored it.</li>
             </ul>
 
             <h2>Terms of Use & Privacy Policy</h2>
@@ -338,7 +353,6 @@
 
     <script>
         let currentMode = 'word'; 
-        let cachedWordBuffer = null;
         let cachedWordName = "document-output";
         let cachedImageArray = []; 
 
@@ -380,18 +394,18 @@
 
         function resetWorkspace() {
             wordInput.value = null; imageInput.value = null;
-            cachedWordBuffer = null; cachedImageArray = [];
+            cachedImageArray = [];
             statusBox.innerHTML = ''; imagePreviewGrid.innerHTML = '';
             previewContent.innerHTML = ''; previewContainer.style.display = 'none';
             convertBtn.disabled = true; convertBtn.innerText = "Download as PDF";
+            previewContent.classList.remove('pdf-export-mode');
         }
 
-        // WORD TO PDF CONVERSION PIPELINE
+        // WORD TO PDF CONVERSION PIPELINE (FIXED)
         wordInput.addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
-            // FIX: Check for legacy .doc extension and warn the user
             const fileNameLower = file.name.toLowerCase();
             if (fileNameLower.endsWith('.doc')) {
                 fileLabel.innerHTML = `<span style="color: var(--danger);">Warning: .doc format not supported</span>`;
@@ -403,23 +417,31 @@
 
             fileLabel.innerHTML = `Analyzing: <b>${file.name}</b>...`;
             try {
-                cachedWordBuffer = await file.arrayBuffer();
                 cachedWordName = file.name.replace(/\.[^/.]+$/, "");
+                previewContent.innerHTML = ''; 
+
+                // FIX: Use docx-preview to render fonts, colors, and layout natively
+                await docx.renderAsync(file, previewContent, null, {
+                    className: "docx", 
+                    inWrapper: true, 
+                    ignoreWidth: false, 
+                    ignoreHeight: false, 
+                    ignoreFonts: false, 
+                    breakPages: true 
+                });
+
+                previewContainer.style.display = 'block';
+                statusBox.innerHTML = `<div class="status-banner success"><b>✓ Ready:</b> Document layout, styling, and colors fully preserved.</div>`;
+                convertBtn.disabled = false;
                 
-                mammoth.convertToHtml({ arrayBuffer: cachedWordBuffer })
-                    .then(function(result) {
-                        previewContent.innerHTML = `<div style="padding: 20px;">${result.value}</div>`;
-                        previewContainer.style.display = 'block';
-                        statusBox.innerHTML = `<div class="status-banner success"><b>✓ Ready:</b> Document parsed completely.</div>`;
-                        convertBtn.disabled = false;
-                    });
             } catch (err) {
+                console.error(err);
                 fileLabel.innerHTML = "Error rendering file.";
                 statusBox.innerHTML = `<div class="status-banner error"><b>⚠ Error:</b> Could not read the document structure.</div>`;
             }
         });
 
-        // IMAGE TO PDF CONVERSION PIPELINE
+        // IMAGE TO PDF CONVERSION PIPELINE (UNTOUCHED)
         imageInput.addEventListener('change', function(e) {
             const files = Array.from(e.target.files);
             if (files.length === 0) return;
@@ -465,26 +487,39 @@
             convertBtn.innerText = "Building PDF File...";
 
             if (currentMode === 'word') {
-                // Word-to-PDF logic with improved CSS page-break awareness
-                const opt = {
-                    margin:       0.4,
-                    filename:     cachedWordName + '.pdf',
-                    image:        { type: 'jpeg', quality: 1.0 },
-                    html2canvas:  { scale: 2, useCORS: true, logging: false },
-                    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
-                    pagebreak:    { mode: ['css', 'legacy'] } // Instructs script to obey our CSS 'avoid' rules
-                };
+                
+                // Temporarily strips the UI grey background and shadows so the PDF exports purely white
+                previewContent.classList.add('pdf-export-mode');
 
-                html2pdf().set(opt).from(previewContent).save().then(() => {
-                    convertBtn.innerText = "Download as PDF";
-                    convertBtn.disabled = false;
-                }).catch(() => {
-                    convertBtn.innerText = "Error - Try Again";
-                    convertBtn.disabled = false;
-                });
+                setTimeout(() => {
+                    const opt = {
+                        margin:       0, // docx-preview natively handles the true document margins!
+                        filename:     cachedWordName + '.pdf',
+                        image:        { type: 'jpeg', quality: 1.0 },
+                        html2canvas:  { 
+                            scale: 2, 
+                            useCORS: true, 
+                            logging: false,
+                            windowWidth: previewContent.scrollWidth // Guarantees width isn't squished down by mobile screens
+                        },
+                        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
+                        pagebreak:    { mode: ['css'] } // Tells it to strictly follow the docx-preview section breaks
+                    };
+
+                    html2pdf().set(opt).from(previewContent).save().then(() => {
+                        convertBtn.innerText = "Download as PDF";
+                        convertBtn.disabled = false;
+                        previewContent.classList.remove('pdf-export-mode'); // Restore the UI
+                    }).catch(() => {
+                        convertBtn.innerText = "Error - Try Again";
+                        convertBtn.disabled = false;
+                        previewContent.classList.remove('pdf-export-mode'); // Restore the UI
+                    });
+                }, 300);
+
             } else {
-                // Exact Sizing Image-to-PDF Logic
-                 try {
+                // Exact Sizing Image-to-PDF Logic (UNTOUCHED)
+                try {
                     const { jsPDF } = window.jspdf;
                     let pdf = null;
 
