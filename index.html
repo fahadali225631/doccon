@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DocCon - Free DOCX to PDF Converter</title>
     
-    <!-- External Libraries for Browser-Based Processing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
@@ -61,7 +60,6 @@
         }
         .btn:disabled { background-color: #bdc3c7; cursor: not-allowed; }
         
-        /* Document Preview Container */
         #preview-container {
             max-width: 600px;
             width: 100%;
@@ -86,15 +84,12 @@
             line-height: 1.6;
             word-wrap: break-word;
         }
-
-        .seo-section {
-            max-width: 600px;
-            width: 100%;
-            margin-top: 40px;
-            text-align: left;
-            line-height: 1.6;
+        #preview img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 10px auto;
         }
-        .seo-section h2 { color: #2c3e50; font-size: 20px; }
     </style>
 </head>
 <body>
@@ -105,85 +100,98 @@
         
         <div class="upload-box" onclick="document.getElementById('fileInput').click()">
             <p id="file-label">Tap to select or drop your .docx file here</p>
-            <input type="file" id="fileInput" accept=".docx">
+            <input type="file" id="fileInput" accept=".docx,.DOCX,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
         </div>
 
         <button class="btn" id="convertBtn" disabled>Download as PDF</button>
     </div>
 
-    <!-- Visible Active Preview Section for Layout Engine Alignment -->
     <div id="preview-container">
         <h3>Document Preview</h3>
         <div id="preview"></div>
-    </div>
-
-    <div class="seo-section">
-        <hr>
-        <h2>Why Use a Client-Side Document Converter?</h2>
-        <p>Traditional file converters upload your sensitive files to external servers, risking data leaks. DocCon processes your document directly within your web browser. Your data never leaves your smartphone or computer, offering 100% data privacy.</p>
-        
-        <h2>How to Format Word Documents for Flawless PDF Output</h2>
-        <p>To ensure perfect alignments when printing your Word documents to PDF, stick to standard global web fonts such as Arial, Calibri, or Times New Roman. Complex overlapping graphic vector layers should be flattened inside your Word processor before running the conversion.</p>
     </div>
 
     <script>
         let fileData = null;
         let fileName = "converted-document";
 
-        // Read file content locally
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
             
+            // FIX 1: Instantly update the text on screen so you know the app received the file
+            const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+            document.getElementById('file-label').innerText = "Loading: " + file.name + " (" + fileSizeMB + " MB)";
+            
             fileName = file.name.replace(/\.[^/.]+$/, ""); 
-            document.getElementById('file-label').innerText = "Selected: " + file.name;
             
             const reader = new FileReader();
+            
             reader.onload = function(event) {
                 fileData = event.target.result;
+                document.getElementById('file-label').innerText = "Selected: " + file.name;
                 document.getElementById('convertBtn').disabled = false;
             };
-            reader.readAsArrayBuffer(file);
+            
+            // FIX 2: Catch if your phone blocks the file stream and tell you how to bypass it
+            reader.onerror = function() {
+                alert("Mobile Security Alert: Your phone is blocking access to this file because it is sitting in your cloud storage (iCloud/Drive). \n\nTo fix this: Open your phone's 'Files' app, copy the document, and paste it directly into your local 'Downloads' folder, then select it from there!");
+                document.getElementById('file-label').innerText = "Tap to select or drop your .docx file here";
+            };
+            
+            try {
+                reader.readAsArrayBuffer(file);
+            } catch(err) {
+                alert("Reader crash: " + err.message);
+            }
         });
 
-        // Convert data stream and build structural layout
         document.getElementById('convertBtn').addEventListener('click', function() {
             if (!fileData) return;
             
             const convertBtn = document.getElementById('convertBtn');
-            convertBtn.innerText = "Processing File...";
+            convertBtn.innerText = "Processing Images...";
             convertBtn.disabled = true;
 
-            // Generate raw HTML layouts from binary contents
             mammoth.convertToHtml({ arrayBuffer: fileData })
                 .then(function(result) {
                     const previewContainer = document.getElementById('preview-container');
                     const previewElement = document.getElementById('preview');
                     
-                    // Inject text contents and reveal the panel instantly
                     previewElement.innerHTML = result.value;
-                    previewContainer.style.opacity = "1";
                     previewContainer.style.display = 'block';
 
-                    // Give mobile devices 200ms to calculate fonts before execution
-                    setTimeout(() => {
-                        const opt = {
-                            margin:       0.5,
-                            filename:     fileName + '.pdf',
-                            image:        { type: 'jpeg', quality: 0.98 },
-                            html2canvas:  { scale: 2, useCORS: true, logging: false },
-                            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-                        };
-                        
-                        // Capture layout directly from the verified visible container
-                        html2pdf().set(opt).from(previewElement).save().then(() => {
-                            convertBtn.innerText = "Download as PDF";
-                            convertBtn.disabled = false;
+                    const images = previewElement.querySelectorAll('img');
+                    const imagePromises = Array.from(images).map(img => {
+                        if (img.complete) return Promise.resolve();
+                        return new Promise(resolve => {
+                            img.onload = resolve;
+                            img.onerror = resolve;
                         });
-                    }, 200);
+                    });
+
+                    Promise.all(imagePromises).then(() => {
+                        convertBtn.innerText = "Generating PDF...";
+                        
+                        setTimeout(() => {
+                            const opt = {
+                                margin:       0.5,
+                                filename:     fileName + '.pdf',
+                                image:        { type: 'jpeg', quality: 0.95 },
+                                html2canvas:  { scale: 1.5, useCORS: true, logging: false },
+                                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
+                                pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+                            };
+                            
+                            html2pdf().set(opt).from(previewElement).save().then(() => {
+                                convertBtn.innerText = "Download as PDF";
+                                convertBtn.disabled = false;
+                            });
+                        }, 400);
+                    });
                 })
                 .catch(function(err) {
-                    alert("Error parsing Word document structural layout.");
+                    alert("Error parsing layout.");
                     convertBtn.innerText = "Download as PDF";
                     convertBtn.disabled = false;
                 });
