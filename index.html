@@ -6,7 +6,6 @@
     <title>DocCon - Free Document & Image to PDF Converter</title>
     <meta name="description" content="Convert DOCX files and images (JPG, PNG, WebP) to PDF instantly and privately right inside your browser. Safe, fast, 100% secure, and AdSense optimized.">
     
-    <!-- Dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
@@ -148,7 +147,7 @@
             border: 1px dashed #cbd5e1;
             max-height: 240px;
             overflow-y: auto;
-            display: none; /* Controlled dynamically */
+            display: none; 
         }
 
         .thumb-wrapper {
@@ -226,7 +225,7 @@
             color: #065f46;
         }
 
-        /* Technical Content Sections (Optimized for Google AdSense Audit Value) */
+        /* Technical Content Sections */
         .info-section {
             margin-bottom: 35px;
         }
@@ -280,26 +279,27 @@
             font-size: 0.95rem;
         }
 
-        /* Sandbox Frame Viewport Rendering Hook */
+        /* FIX: Canvas is built off-screen instead of display:none so html2pdf calculates dimensions flawlessly */
         #render-canvas {
-            display: none;
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            width: 750px; 
             background: white;
             color: black;
-            padding: 0;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         .pdf-page-block {
             page-break-after: always;
             text-align: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            margin-bottom: 20px;
         }
 
         .pdf-page-block img {
             max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
+            height: auto;
             display: block;
             margin: 0 auto;
         }
@@ -366,13 +366,11 @@
 
     <div class="main-wrapper">
         
-        <!-- Tabbed Navigation Core -->
         <div class="tabs-container">
             <button class="tab-btn active" id="tab-word" onclick="switchTab('word')">📄 Word to PDF</button>
             <button class="tab-btn" id="tab-image" onclick="switchTab('image')">🖼️ Image to PDF</button>
         </div>
 
-        <!-- Integrated Utility Converter Workspace Card -->
         <div class="converter-card">
             <h1 id="card-title">Convert Word Document to PDF</h1>
             <p class="subtitle" id="card-subtitle">Secure, sandbox processing directly inside your mobile browser</p>
@@ -381,12 +379,10 @@
                 <span class="upload-icon" id="card-icon">📝</span>
                 <p id="file-label" style="margin: 5px 0 0 0; font-weight: 500;">Tap to upload your document (.docx, .doc)</p>
                 
-                <!-- Separate specific handles for stability -->
                 <input type="file" id="wordInput" accept=".docx,.doc,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
                 <input type="file" id="imageInput" accept="image/jpeg,image/png,image/webp" multiple>
             </div>
 
-            <!-- Dynamic Image Grid Viewport -->
             <div class="gallery-preview" id="imagePreviewGrid"></div>
 
             <div id="statusBox"></div>
@@ -394,10 +390,8 @@
             <button class="btn" id="convertBtn" disabled>Download as PDF</button>
         </div>
 
-        <!-- Invisible Sandbox Core used by local layout compilers -->
         <div id="render-canvas"></div>
 
-        <!-- Comprehensive Instructional Blueprint Segment -->
         <div class="info-section">
             <h2>User Operations Blueprint</h2>
             <ol style="padding-left: 20px; color: #475569;" id="guide-steps">
@@ -408,7 +402,6 @@
             </ol>
         </div>
 
-        <!-- Enterprise Value Matrix Features Panel -->
         <div class="info-section">
             <h2>Algorithmic Processing Advantages</h2>
             <div class="grid-benefits">
@@ -423,7 +416,6 @@
             </div>
         </div>
 
-        <!-- Deep Search Optimization FAQ Context -->
         <div class="info-section">
             <h2>Frequently Asked Questions</h2>
             
@@ -453,7 +445,6 @@
         </p>
     </footer>
 
-    <!-- Strict Monetization Compliance Regulatory Framework Nodes -->
     <div id="termsModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal('termsModal')">&times;</span>
@@ -473,13 +464,11 @@
     </div>
 
     <script>
-        // System Operation State Variable Maps
         let currentMode = 'word'; 
         let cachedWordBuffer = null;
         let cachedWordName = "document-output";
-        let cachedImageArray = []; // Stores Base64 layout nodes for compilation loops
+        let cachedImageArray = []; 
 
-        // Dom Element Selectors
         const wordInput = document.getElementById('wordInput');
         const imageInput = document.getElementById('imageInput');
         const fileLabel = document.getElementById('file-label');
@@ -488,19 +477,15 @@
         const imagePreviewGrid = document.getElementById('imagePreviewGrid');
         const renderCanvas = document.getElementById('render-canvas');
 
-        // Dynamic State Tab Mutation Switch Matrix
         function switchTab(mode) {
             if (currentMode === mode) return;
             currentMode = mode;
             
-            // Clear current working states safely
             resetWorkspace();
 
-            // Handle Tab UI active swaps
             document.getElementById('tab-word').classList.toggle('active', mode === 'word');
             document.getElementById('tab-image').classList.toggle('active', mode === 'image');
 
-            // Structural Text Copy Modifications for AdSense compliance mapping
             if (mode === 'word') {
                 document.getElementById('card-title').innerText = "Convert Word Document to PDF";
                 document.getElementById('card-subtitle').innerText = "Secure, sandbox processing directly inside your mobile browser";
@@ -535,9 +520,7 @@
             convertBtn.innerText = "Download as PDF";
         }
 
-        // ==========================================
-        // FEATURE PIPELINE ONE: WORD TO PDF CORE HANDLES
-        // ==========================================
+        // WORD PROCESSOR LINE
         wordInput.addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -545,7 +528,6 @@
             const nameLow = file.name.toLowerCase();
             const sizeMB = (file.size / 1024 / 1024).toFixed(2);
 
-            // SPECIAL INSTRUCTION INTEGRATED: Gracefully process .doc file requests with a contextual guidance layout frame
             if (nameLow.endsWith('.doc')) {
                 fileLabel.innerHTML = `Selected: <b>${file.name}</b>`;
                 statusBox.innerHTML = `
@@ -570,13 +552,11 @@
                 fileLabel.innerHTML = `Selected: <b>${file.name}</b>`;
                 convertBtn.disabled = false;
             } catch (err) {
-                statusBox.innerHTML = `<div class="status-banner warning"><b>Error:</b> Local array mapping fail. Structural context break within stream channels.</div>`;
+                statusBox.innerHTML = `<div class="status-banner warning"><b>Error:</b> Local array mapping fail.</div>`;
             }
         });
 
-        // ==========================================
-        // FEATURE PIPELINE TWO: IMAGE TO PDF CORE HANDLES
-        // ==========================================
+        // IMAGE PROCESSOR LINE
         imageInput.addEventListener('change', async function(e) {
             const files = Array.from(e.target.files);
             if (files.length === 0) return;
@@ -596,7 +576,6 @@
                     const base64Data = event.target.result;
                     cachedImageArray.push(base64Data);
 
-                    // Append interactive thumbnail elements to display operational feedback
                     const thumb = document.createElement('div');
                     thumb.className = 'thumb-wrapper';
                     thumb.innerHTML = `<img src="${base64Data}"><span class="thumb-counter">${i + 1}</span>`;
@@ -617,9 +596,7 @@
             }
         });
 
-        // ==========================================
-        // LOCAL RENDERING EXECUTION ACTION PIPELINE
-        // ==========================================
+        // EXECUTION ENGINE CLICK
         convertBtn.addEventListener('click', function() {
             convertBtn.disabled = true;
 
@@ -633,7 +610,7 @@
                         executePdfDownload(cachedWordName);
                     })
                     .catch(function() {
-                        statusBox.innerHTML = `<div class="status-banner warning"><b>Conversion Error:</b> Local layout engine failed structural matrix extraction.</div>`;
+                        statusBox.innerHTML = `<div class="status-banner warning"><b>Conversion Error:</b> Local layout engine failed.</div>`;
                         convertBtn.innerText = "Download as PDF";
                         convertBtn.disabled = false;
                     });
@@ -641,9 +618,8 @@
                 if (cachedImageArray.length === 0) return;
                 convertBtn.innerText = "Structuring Target Resolution Elements...";
 
-                renderCanvas.innerHTML = ''; // Wipe container clean
+                renderCanvas.innerHTML = ''; 
                 
-                // Programmatically structuralize standalone high-definition asset blocks matching clean system output limits
                 cachedImageArray.forEach(imgData => {
                     const pageBlock = document.createElement('div');
                     pageBlock.className = 'pdf-page-block';
@@ -658,11 +634,10 @@
         function executePdfDownload(outputTitle) {
             convertBtn.innerText = "Rendering Canvas Assets...";
             
-            // High fidelity mobile engine option mapping specs
             const opt = {
-                margin:       0.2,
+                margin:       0.4,
                 filename:     outputTitle + '.pdf',
-                image:        { type: 'jpeg', quality: 0.96 },
+                image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, logging: false },
                 jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
@@ -670,14 +645,13 @@
             html2pdf().set(opt).from(renderCanvas).save().then(() => {
                 convertBtn.innerText = "Download as PDF";
                 convertBtn.disabled = false;
-                renderCanvas.innerHTML = ''; // Clean runtime heap space leaks
+                renderCanvas.innerHTML = ''; 
             }).catch(err => {
                 convertBtn.innerText = "Download as PDF";
                 convertBtn.disabled = false;
             });
         }
 
-        // Operational Modal Infrastructure Hooks
         function openModal(id) { document.getElementById(id).style.display = "block"; }
         function closeModal(id) { document.getElementById(id).style.display = "none"; }
         window.onclick = function(e) { if (e.target.classList.contains('modal')) e.target.style.display = "none"; }
