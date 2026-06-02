@@ -33,7 +33,6 @@
         h1 { color: #2c3e50; margin-bottom: 5px; }
         p.subtitle { color: #7f8c8d; margin-top: 0; margin-bottom: 25px; }
         
-        /* Drag & Drop Box Style */
         .upload-box {
             border: 2px dashed #3498db;
             padding: 30px;
@@ -61,7 +60,6 @@
         }
         .btn:disabled { background-color: #bdc3c7; cursor: not-allowed; }
         
-        /* AdSense Simulation / SEO Article Area */
         .seo-section {
             max-width: 600px;
             width: 100%;
@@ -70,17 +68,6 @@
             line-height: 1.6;
         }
         .seo-section h2 { color: #2c3e50; font-size: 20px; }
-        
-        /* FIXED: Pushes layout off-screen instead of display:none so the canvas renderer can capture it */
-        #preview { 
-            position: absolute;
-            left: -9999px;
-            top: 0;
-            width: 8.5in; 
-            padding: 0.5in;
-            background: white; 
-            box-sizing: border-box;
-        }
     </style>
 </head>
 <body>
@@ -97,7 +84,6 @@
         <button class="btn" id="convertBtn" disabled>Download as PDF</button>
     </div>
 
-    <!-- SEO Content Section -->
     <div class="seo-section">
         <hr>
         <h2>Why Use a Client-Side Document Converter?</h2>
@@ -107,30 +93,27 @@
         <p>To ensure perfect alignments when printing your Word documents to PDF, stick to standard global web fonts such as Arial, Calibri, or Times New Roman. Complex overlapping graphic vector layers should be flattened inside your Word processor before running the conversion.</p>
     </div>
 
-    <!-- Hidden element where Mammoth renders the HTML structural data before html2pdf grabs it -->
-    <div id="preview"></div>
-
     <script>
         let fileData = null;
         let fileName = "converted-document";
 
-        // Step 1: Handle File Upload on Mobile
+        // Read file contents into an ArrayBuffer
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
             
-            fileName = file.name.replace(/\.[^/.]+$/, ""); // Strip out the original .docx extension
+            fileName = file.name.replace(/\.[^/.]+$/, ""); 
             document.getElementById('file-label').innerText = "Selected: " + file.name;
             
             const reader = new FileReader();
             reader.onload = function(event) {
                 fileData = event.target.result;
-                document.getElementById('convertBtn').disabled = false; // Activate conversion button
+                document.getElementById('convertBtn').disabled = false;
             };
             reader.readAsArrayBuffer(file);
         });
 
-        // Step 2: Extract DOCX structure into HTML and fire html2pdf stream
+        // Convert file data programmatically
         document.getElementById('convertBtn').addEventListener('click', function() {
             if (!fileData) return;
             
@@ -138,23 +121,29 @@
             convertBtn.innerText = "Processing File...";
             convertBtn.disabled = true;
 
-            // Use Mammoth.js to turn the raw binary Word array buffer into valid semantic HTML
+            // Use Mammoth to turn your Word file elements into raw semantic HTML
             mammoth.convertToHtml({ arrayBuffer: fileData })
                 .then(function(result) {
-                    const previewElement = document.getElementById('preview');
-                    previewElement.innerHTML = result.value; // Push HTML into our hidden processor div
                     
-                    // Options for the PDF generator engine
+                    // FIXED: Create a fresh layout container entirely in system memory
+                    const workerElement = document.createElement('div');
+                    workerElement.style.width = '8.5in';
+                    workerElement.style.padding = '0.5in';
+                    workerElement.style.backgroundColor = '#ffffff';
+                    workerElement.style.color = '#000000';
+                    workerElement.innerHTML = result.value; 
+
+                    // Define rendering properties for the virtual lens package
                     const opt = {
                         margin:       0.5,
                         filename:     fileName + '.pdf',
                         image:        { type: 'jpeg', quality: 0.98 },
-                        html2canvas:  { scale: 2, useCORS: true },
+                        html2canvas:  { scale: 2, useCORS: true, logging: false },
                         jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
                     };
                     
-                    // Capture layout and compile binary download package
-                    html2pdf().set(opt).from(previewElement).save().then(() => {
+                    // Directly point the engine to your in-memory element structure
+                    html2pdf().set(opt).from(workerElement).save().then(() => {
                         convertBtn.innerText = "Download as PDF";
                         convertBtn.disabled = false;
                     });
