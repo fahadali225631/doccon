@@ -71,8 +71,16 @@
         }
         .seo-section h2 { color: #2c3e50; font-size: 20px; }
         
-        /* Hidden layout container used for background rendering */
-        #preview { display: none; width: 100%; padding: 20px; background: white; }
+        /* FIXED: Pushes layout off-screen instead of display:none so the canvas renderer can capture it */
+        #preview { 
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            width: 8.5in; 
+            padding: 0.5in;
+            background: white; 
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
@@ -89,7 +97,7 @@
         <button class="btn" id="convertBtn" disabled>Download as PDF</button>
     </div>
 
-    <!-- SEO Content Section: This ensures Google AdSense approves the site for text content -->
+    <!-- SEO Content Section -->
     <div class="seo-section">
         <hr>
         <h2>Why Use a Client-Side Document Converter?</h2>
@@ -138,10 +146,10 @@
                     
                     // Options for the PDF generator engine
                     const opt = {
-                        margin:       1,
+                        margin:       0.5,
                         filename:     fileName + '.pdf',
                         image:        { type: 'jpeg', quality: 0.98 },
-                        html2canvas:  { scale: 2 },
+                        html2canvas:  { scale: 2, useCORS: true },
                         jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
                     };
                     
