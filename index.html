@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocCon - Free DOCX to PDF Converter</title>
+    
+    <!-- External Libraries for Browser-Based Processing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            text-align: center;
+            margin-top: 40px;
+        }
+        h1 { color: #2c3e50; margin-bottom: 5px; }
+        p.subtitle { color: #7f8c8d; margin-top: 0; margin-bottom: 25px; }
+        
+        /* Drag & Drop Box Style */
+        .upload-box {
+            border: 2px dashed #3498db;
+            padding: 30px;
+            border-radius: 8px;
+            background-color: #ecf0f1;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .upload-box:hover { background-color: #e2e7e9; }
+        input[type="file"] { display: none; }
+        
+        .btn {
+            display: inline-block;
+            background-color: #2ecc71;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+            transition: background 0.2s;
+        }
+        .btn:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        
+        /* AdSense Simulation / SEO Article Area */
+        .seo-section {
+            max-width: 600px;
+            width: 100%;
+            margin-top: 40px;
+            text-align: left;
+            line-height: 1.6;
+        }
+        .seo-section h2 { color: #2c3e50; font-size: 20px; }
+        
+        /* Hidden layout container used for background rendering */
+        #preview { display: none; width: 100%; padding: 20px; background: white; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>DocCon</h1>
+        <p class="subtitle">Convert Word Documents to PDF Instantly & Privately</p>
+        
+        <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+            <p id="file-label">Tap to select or drop your .docx file here</p>
+            <input type="file" id="fileInput" accept=".docx">
+        </div>
+
+        <button class="btn" id="convertBtn" disabled>Download as PDF</button>
+    </div>
+
+    <!-- SEO Content Section: This ensures Google AdSense approves the site for text content -->
+    <div class="seo-section">
+        <hr>
+        <h2>Why Use a Client-Side Document Converter?</h2>
+        <p>Traditional file converters upload your sensitive files to external servers, risking data leaks. DocCon processes your document directly within your web browser. Your data never leaves your smartphone or computer, offering 100% data privacy.</p>
+        
+        <h2>How to Format Word Documents for Flawless PDF Output</h2>
+        <p>To ensure perfect alignments when printing your Word documents to PDF, stick to standard global web fonts such as Arial, Calibri, or Times New Roman. Complex overlapping graphic vector layers should be flattened inside your Word processor before running the conversion.</p>
+    </div>
+
+    <!-- Hidden element where Mammoth renders the HTML structural data before html2pdf grabs it -->
+    <div id="preview"></div>
+
+    <script>
+        let fileData = null;
+        let fileName = "converted-document";
+
+        // Step 1: Handle File Upload on Mobile
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            fileName = file.name.replace(/\.[^/.]+$/, ""); // Strip out the original .docx extension
+            document.getElementById('file-label').innerText = "Selected: " + file.name;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                fileData = event.target.result;
+                document.getElementById('convertBtn').disabled = false; // Activate conversion button
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        // Step 2: Extract DOCX structure into HTML and fire html2pdf stream
+        document.getElementById('convertBtn').addEventListener('click', function() {
+            if (!fileData) return;
+            
+            const convertBtn = document.getElementById('convertBtn');
+            convertBtn.innerText = "Processing File...";
+            convertBtn.disabled = true;
+
+            // Use Mammoth.js to turn the raw binary Word array buffer into valid semantic HTML
+            mammoth.convertToHtml({ arrayBuffer: fileData })
+                .then(function(result) {
+                    const previewElement = document.getElementById('preview');
+                    previewElement.innerHTML = result.value; // Push HTML into our hidden processor div
+                    
+                    // Options for the PDF generator engine
+                    const opt = {
+                        margin:       1,
+                        filename:     fileName + '.pdf',
+                        image:        { type: 'jpeg', quality: 0.98 },
+                        html2canvas:  { scale: 2 },
+                        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                    };
+                    
+                    // Capture layout and compile binary download package
+                    html2pdf().set(opt).from(previewElement).save().then(() => {
+                        convertBtn.innerText = "Download as PDF";
+                        convertBtn.disabled = false;
+                    });
+                })
+                .catch(function(err) {
+                    alert("Error parsing Word document structural layout.");
+                    convertBtn.innerText = "Download as PDF";
+                    convertBtn.disabled = false;
+                });
+        });
+    </script>
+
+</body>
+</html>
