@@ -1,308 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DocCon - Free Online Word to PDF Converter</title>
-    <meta name="description" content="Convert modern DOCX files to PDF instantly and privately right inside your browser. No registration, no server uploads, 100% secure.">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-    <style>
-        :root {
-            --primary: #3b82f6;
-            --primary-hover: #2563eb;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --dark: #0f172a;
-            --text-main: #334155;
-            --bg-main: #f8fafc;
-            --card-bg: #ffffff;
-        }
-
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-        }
-
-        .navbar {
-            background-color: var(--card-bg);
-            border-bottom: 1px solid #e2e8f0;
-            padding: 15px 20px;
-            text-align: center;
-            font-weight: 700;
-            font-size: 1.35rem;
-            color: var(--dark);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-        }
-
-        .navbar span {
-            color: var(--primary);
-        }
-
-        .main-wrapper {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 0 20px;
-            box-sizing: border-box;
-        }
-
-        /* Converter Card Styling */
-        .converter-card {
-            background: var(--card-bg);
-            padding: 40px 30px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05);
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        h1 {
-            color: var(--dark);
-            font-size: 2rem;
-            margin-top: 0;
-            margin-bottom: 8px;
-        }
-
-        .subtitle {
-            color: #64748b;
-            font-size: 1rem;
-            margin-top: 0;
-            margin-bottom: 30px;
-        }
-
-        .upload-zone {
-            border: 2px dashed #cbd5e1;
-            padding: 40px 20px;
-            border-radius: 12px;
-            background-color: #f1f5f9;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .upload-zone:hover {
-            border-color: var(--primary);
-            background-color: #eff6ff;
-        }
-
-        .upload-icon {
-            font-size: 40px;
-            margin-bottom: 10px;
-            display: inline-block;
-        }
-
-        input[type="file"] {
-            display: none;
-        }
-
-        .btn {
-            display: block;
-            background-color: var(--primary);
-            color: white;
-            padding: 14px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 25px;
-            width: 100%;
-            transition: background 0.2s;
-            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
-        }
-
-        .btn:hover {
-            background-color: var(--primary-hover);
-        }
-
-        .btn:disabled {
-            background-color: #94a3b8;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        /* Alert/Status Banners */
-        .status-banner {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            text-align: left;
-            display: none;
-        }
-
-        .status-banner.warning {
-            display: block;
-            background-color: #fef3c7;
-            border-left: 4px solid var(--warning);
-            color: #92400e;
-        }
-
-        .status-banner.success {
-            display: block;
-            background-color: #d1fae5;
-            border-left: 4px solid var(--success);
-            color: #065f46;
-        }
-
-        /* Preview Display */
-        #preview-container {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 16px;
-            margin-top: 30px;
-            text-align: left;
-            display: none;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-            border: 1px solid #e2e8f0;
-        }
-
-        #preview {
-            color: #000;
-            line-height: 1.6;
-            word-wrap: break-word;
-        }
-
-        #preview img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 15px auto;
-        }
-
-        /* Informational/SEO Content Sections (Crucial for AdSense) */
-        .info-section {
-            margin-bottom: 35px;
-        }
-
-        .info-section h2 {
-            color: var(--dark);
-            font-size: 1.4rem;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 8px;
-            margin-bottom: 15px;
-        }
-
-        .grid-benefits {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin-top: 15px;
-        }
-
-        .benefit-card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .benefit-card h3 {
-            margin-top: 0;
-            color: var(--dark);
-            font-size: 1.1rem;
-        }
-
-        .faq-item {
-            background: white;
-            padding: 15px 20px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-            margin-bottom: 12px;
-        }
-
-        .faq-item h3 {
-            margin-top: 0;
-            margin-bottom: 5px;
-            font-size: 1.05rem;
-            color: var(--dark);
-        }
-
-        .faq-item p {
-            margin: 0;
-            color: #475569;
-            font-size: 0.95rem;
-        }
-
-        footer {
-            text-align: center;
-            padding: 40px 20px;
-            margin-top: 60px;
-            border-top: 1px solid #e2e8f0;
-            font-size: 0.9rem;
-            color: #64748b;
-            background: white;
-        }
-
-        footer a {
-            color: var(--primary);
-            text-decoration: none;
-            margin: 0 10px;
-        }
-
-        footer a:hover {
-            text-decoration: underline;
-        }
-
-        /* Interactive Legal Modals */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(4px);
-        }
-
-        .modal-content {
-            background-color: white;
-            margin: 10% auto;
-            padding: 30px;
-            border-radius: 12px;
-            max-width: 600px;
-            max-height: 70%;
-            overflow-y: auto;
-            text-align: left;
-            position: relative;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 24px;
-            cursor: pointer;
-            color: #94a3b8;
-        }
-
-        .close-modal:hover {
-            color: var(--dark);
-        }
-    </style>
-</head>
-<body>
-
-    <div class="navbar">Doc<span>Con</span></div>
-
-    <div class="main-wrapper">
-        
-        <div class="converter-card">
-            <h1>Convert Word Document to PDF</h1>
-            <p class="subtitle">Secure, Client-Side document conversion interface</p>
-            
-            <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
-                <span class="upload-icon">📄</span>
-                <p id="file-label" style="margin: 5px 0 0 0; font-weight: 500;">Tap to select your document (.docx) </p>
+select your document (.docx) </p>
                 <input type="file" id="fileInput" accept=".docx,.doc,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
             </div>
 
@@ -493,3 +189,556 @@
     </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocCon - Free Document & Image to PDF Converter</title>
+    <meta name="description" content="Convert DOCX files and images (JPG, PNG, WebP) to PDF instantly and privately right inside your browser. Safe, fast, 100% secure, and AdSense optimized.">
+    
+    <!-- Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #0f172a;
+            --text-main: #334155;
+            --bg-main: #f8fafc;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 15px 20px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.35rem;
+            color: var(--dark);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .navbar span {
+            color: var(--primary);
+        }
+
+        .main-wrapper {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        /* Feature Tabs System */
+        .tabs-container {
+            display: flex;
+            background: #e2e8f0;
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .tab-btn.active {
+            background: var(--card-bg);
+            color: var(--dark);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        /* Converter Card Styling */
+        .converter-card {
+            background: var(--card-bg);
+            padding: 40px 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05);
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: var(--dark);
+            font-size: 1.8rem;
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        /* Unified Upload Zone Component */
+        .upload-zone {
+            border: 2px dashed #cbd5e1;
+            padding: 45px 20px;
+            border-radius: 12px;
+            background-color: #f1f5f9;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background-color: #eff6ff;
+        }
+
+        .upload-icon {
+            font-size: 44px;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        /* Dynamic Image Gallery Preview Grid */
+        .gallery-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px dashed #cbd5e1;
+            max-height: 240px;
+            overflow-y: auto;
+            display: none; /* Controlled dynamically */
+        }
+
+        .thumb-wrapper {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #cbd5e1;
+            background: #cbd5e1;
+        }
+
+        .thumb-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .thumb-counter {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            background: rgba(15, 23, 42, 0.75);
+            color: white;
+            font-size: 0.7rem;
+            padding: 1px 4px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        /* Execution Button Layout */
+        .btn {
+            display: block;
+            background-color: var(--primary);
+            color: white;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 25px;
+            width: 100%;
+            transition: background 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Status & Alert Banners */
+        .status-banner {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            text-align: left;
+        }
+
+        .status-banner.warning {
+            background-color: #fef3c7;
+            border-left: 4px solid var(--warning);
+            color: #92400e;
+        }
+
+        .status-banner.success {
+            background-color: #d1fae5;
+            border-left: 4px solid var(--success);
+            color: #065f46;
+        }
+
+        /* Technical Content Sections (Optimized for Google AdSense Audit Value) */
+        .info-section {
+            margin-bottom: 35px;
+        }
+
+        .info-section h2 {
+            color: var(--dark);
+            font-size: 1.35rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+
+        .grid-benefits {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .benefit-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .benefit-card h3 {
+            margin-top: 0;
+            color: var(--dark);
+            font-size: 1.05rem;
+        }
+
+        .faq-item {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 12px;
+        }
+
+        .faq-item h3 {
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 1.05rem;
+            color: var(--dark);
+        }
+
+        .faq-item p {
+            margin: 0;
+            color: #475569;
+            font-size: 0.95rem;
+        }
+
+        /* Sandbox Frame Viewport Rendering Hook */
+        #render-canvas {
+            display: none;
+            background: white;
+            color: black;
+            padding: 0;
+        }
+
+        .pdf-page-block {
+            page-break-after: always;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pdf-page-block img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 60px;
+            border-top: 1px solid var(--border);
+            font-size: 0.9rem;
+            color: #64748b;
+            background: white;
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Regulatory Modals System */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            max-height: 70%;
+            overflow-y: auto;
+            text-align: left;
+            position: relative;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">Doc<span>Con</span> Ultimate</div>
+
+    <div class="main-wrapper">
+        
+        <!-- Tabbed Navigation Core -->
+        <div class="tabs-container">
+            <button class="tab-btn active" id="tab-word" onclick="switchTab('word')">📄 Word to PDF</button>
+            <button class="tab-btn" id="tab-image" onclick="switchTab('image')">🖼️ Image to PDF</button>
+        </div>
+
+        <!-- Integrated Utility Converter Workspace Card -->
+        <div class="converter-card">
+            <h1 id="card-title">Convert Word Document to PDF</h1>
+            <p class="subtitle" id="card-subtitle">Secure, sandbox processing directly inside your mobile browser</p>
+            
+            <div class="upload-zone" id="dropZone" onclick="triggerFileInput()">
+                <span class="upload-icon" id="card-icon">📝</span>
+                <p id="file-label" style="margin: 5px 0 0 0; font-weight: 500;">Tap to upload your document (.docx, .doc)</p>
+                
+                <!-- Separate specific handles for stability -->
+                <input type="file" id="wordInput" accept=".docx,.doc,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                <input type="file" id="imageInput" accept="image/jpeg,image/png,image/webp" multiple>
+            </div>
+
+            <!-- Dynamic Image Grid Viewport -->
+            <div class="gallery-preview" id="imagePreviewGrid"></div>
+
+            <div id="statusBox"></div>
+
+            <button class="btn" id="convertBtn" disabled>Download as PDF</button>
+        </div>
+
+        <!-- Invisible Sandbox Core used by local layout compilers -->
+        <div id="render-canvas"></div>
+
+        <!-- Comprehensive Instructional Blueprint Segment -->
+        <div class="info-section">
+            <h2>User Operations Blueprint</h2>
+            <ol style="padding-left: 20px; color: #475569;" id="guide-steps">
+                <li style="margin-bottom: 8px;">Select the file context mode utilizing the top toggles (Word to PDF or Image to PDF).</li>
+                <li style="margin-bottom: 8px;">Tap the shaded dashed upload field box to choose files from storage memory.</li>
+                <li style="margin-bottom: 8px;">Confirm document structure format validations outputted inside the green message card.</li>
+                <li style="margin-bottom: 8px;">Click <b>"Download as PDF"</b> to finalize compilation maps and execute instant device save protocols.</li>
+            </ol>
+        </div>
+
+        <!-- Enterprise Value Matrix Features Panel -->
+        <div class="info-section">
+            <h2>Algorithmic Processing Advantages</h2>
+            <div class="grid-benefits">
+                <div class="benefit-card">
+                    <h3>Zero Network Transmission</h3>
+                    <p style="font-size:0.9rem; margin:0; color:#475569;">Document parsing calculations process exclusively within browser container memory frames. Content tracking runs at zero metric logs.</p>
+                </div>
+                <div class="benefit-card">
+                    <h3>Adaptive Mobile Sizing</h3>
+                    <p style="font-size:0.9rem; margin:0; color:#475569;">Image compilation workflows auto-scale high-definition camera arrays into balanced printable PDF vectors without page bleed errors.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deep Search Optimization FAQ Context -->
+        <div class="info-section">
+            <h2>Frequently Asked Questions</h2>
+            
+            <div class="faq-item">
+                <h3>Why does the application prompt a warning layout when picking an old .doc system file?</h3>
+                <p>Legacy binary file layers (.doc built prior to 2004) store composition structures within proprietary text packages. Because this software functions locally inside standard browser tabs for privacy compliance, it reads open XML arrays (.docx) natively. Legacy items require a simple "Save As" conversion step beforehand.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>Can I compile different multi-format photos into a single unified document book structure?</h3>
+                <p>Yes. The Image to PDF engine parses standard format profiles including JPEG, PNG, and WebP layers simultaneously, processing individual dimensions accurately into a standard chronological page order block flow.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>Is there a restriction on the maximum quantity of pictures uploaded concurrently?</h3>
+                <p>Our sandbox environment limits performance limits to device RAM capabilities. We advise uploading clusters of up to 25 image objects simultaneously to prevent unexpected system tab resets inside lower-tier mobile systems.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 DocCon Platform System. All rights reserved.</p>
+        <p>
+            <a href="#" onclick="openModal('termsModal')">Terms of Service</a> | 
+            <a href="#" onclick="openModal('privacyModal')">Privacy Document</a>
+        </p>
+    </footer>
+
+    <!-- Strict Monetization Compliance Regulatory Framework Nodes -->
+    <div id="termsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('termsModal')">&times;</span>
+            <h2>Terms of Service</h2>
+            <p>Welcome to the DocCon tool matrix. By engaging our on-page local client execution systems, you fully recognize and completely validate that execution runs entirely without centralized network cloud servers.</p>
+            <p>Calculations occur within isolated software sandboxes. Service layouts are configured "as-is" under individual choice validation variables without implied runtime uptime or conversion consistency representations.</p>
+        </div>
+    </div>
+
+    <div id="privacyModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('privacyModal')">&times;</span>
+            <h2>Privacy Policy</h2>
+            <p>Your user parameter isolation metrics remain absolute. Processing algorithms operate natively in isolated layout partitions without triggering telemetry data exports to out-of-network storage assets.</p>
+            <p>We completely refuse to monitor personal identifier fingerprints, layout properties, context variables, asset file sizing weights, or location properties. All actions operate with zero transaction record logging.</p>
+        </div>
+    </div>
+
+    <script>
+        // System Operation State Variable Maps
+        let currentMode = 'word'; 
+        let cachedWordBuffer = null;
+        let cachedWordName = "document-output";
+        let cachedImageArray = []; // Stores Base64 layout nodes for compilation loops
+
+        // Dom Element Selectors
+        const wordInput = document.getElementById('wordInput');
+        const imageInput = document.getElementById('imageInput');
+        const fileLabel = document.getElementById('file-label');
+        const convertBtn = document.getElementById('convertBtn');
+        const statusBox = document.getElementById('statusBox');
+        const imagePreviewGrid = document.getElementById('imagePreviewGrid');
+        const renderCanvas = document.getElementById('render-canvas');
+
+        // Dynamic State Tab Mutation Switch Matrix
+        function switchTab(mode) {
+            if (currentMode === mode) return;
+            currentMode = mode;
+            
+            // Clear current working states safely
+            resetWorkspace();
+
+            // Handle Tab UI active swaps
+            document.getElementById('tab-word').classList.toggle('active', mode === 'word');
+            document.getElementById('tab-image').classList.toggle('active', mode === 'image');
+
+            // Structural Text Copy Modifications for AdSense compliance mapping
+            if (mode === 'word') {
+                document.getElementById('card-title').innerText = "Convert Word Document to PDF";
+                document.getElementById('card-subtitle').innerText = "Secure, sandbox processing directly inside your mobile browser";
+                document.getElementById('card-icon').innerText = "📝";
+                fileLabel.innerHTML = "Tap to upload your document (.docx, .doc)";
+                imagePreviewGrid.style.display = "none";
+            } else {
+                document.getElementById('card-title').innerText = "Convert Images to PDF Book";
+                document.getElementById('card-subtitle').innerText = "Compile multi-shot assignments, diagrams, and photos safely";
+                document.getElementById('card-icon').innerText = "🖼️";
+                fileLabel.innerHTML = "Tap to upload image files (JPG, PNG, WebP)";
+                imagePreviewGrid.style.display = "grid";
+            }
+        }
+
+        function triggerFileInput() {
+            if (currentMode === 'word') {
+                wordInput.click();
+            } else {
+                imageInput.click();
+            }
+        }
+
+        function resetWorkspace() {
+            wordInput.value = null;
+            imageInput.value = null;
+            cachedWordBuffer = null;
+            cachedImageArray = [];
+            statusBox.innerHTML = '';
+            imagePreviewGrid.innerHTML = '';
+            convertBtn.disabled = true;
+            convertBtn.innerText = "Download as PDF";
+        }
+
+        // ==========================================
+        // FEATURE PIPELINE ONE: WORD TO PDF CORE HANDLES
+        // ==========================================
+        wordInput.addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const nameLow = file.name.toLowerCase();
+            const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+
+            // SPECIAL INSTRUCTION INTEGRATED: Gracefully process .doc file requests with a contextual guidance layout frame
+            if (nameLow.endsWith('.doc')) {
+                fileLabel.innerHTML = `Selected: <b>${file.name}</b>`;
+                statusBox.innerHTML = `
+                    <div class="status-banner warning">
+                        <b>⚠️ Legacy Form
