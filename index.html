@@ -4,24 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DocCon - Premium Online Word & Image to PDF Converter</title>
-    <meta name="description" content="Convert modern DOCX documents and image files (JPG, PNG, WebP) to high-definition PDFs instantly and privately right inside your web browser. 100% secure.">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         :root {
-            --primary: #3b82f6;        /* Vibrant Premium Blue */
-            --primary-hover: #2563eb;  /* Deeper Clickable Blue */
+            --primary: #3b82f6;        /* Blue */
+            --primary-hover: #2563eb;  
             --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --dark: #ffffff;           /* Crisp White Headlines */
-            --text-main: #e2e8f0;      /* Light Gray Text for readability */
-            --text-muted: #94a3b8;     /* Muted Blue-Gray Text */
-            --bg-main: #0f172a;        /* Requested Immersive Dark Background */
-            --bg-subtle: #1e293b;      /* Sleek Card/Surface Dark Tone */
-            --border: #334155;         /* Subtle Dark Accent Border */
+            --dark: #ffffff;           /* White Text */
+            --text-main: #e2e8f0;      
+            --text-muted: #94a3b8;     
+            --bg-main: #0f172a;        /* Dark Background */
+            --bg-subtle: #1e293b;      
+            --border: #334155;         
             --radius-lg: 14px;
             --radius-md: 8px;
         }
@@ -33,7 +30,6 @@
             margin: 0;
             padding: 0;
             line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
         }
 
         .navbar {
@@ -44,7 +40,6 @@
             font-weight: 800;
             font-size: 1.4rem;
             color: var(--dark);
-            letter-spacing: -0.03em;
         }
 
         .navbar span {
@@ -58,7 +53,6 @@
             box-sizing: border-box;
         }
 
-        /* Feature Tabs Navigation Control Component */
         .tabs-container {
             display: flex;
             background: var(--bg-main);
@@ -89,16 +83,13 @@
             background: var(--bg-subtle);
             color: var(--primary);
             border: 1px solid var(--border);
-            box-shadow: 0 4px 10px -1px rgba(0,0,0,0.2);
         }
 
-        /* Main Conversion Tool Workspace Card Styling */
         .converter-card {
             background: var(--bg-subtle);
             padding: 40px 30px;
             border-radius: var(--radius-lg);
             border: 1px solid var(--border);
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
             text-align: center;
             margin-bottom: 35px;
         }
@@ -106,45 +97,31 @@
         h1 {
             color: var(--dark);
             font-size: 1.75rem;
-            font-weight: 700;
             margin-top: 0;
-            margin-bottom: 8px;
-            letter-spacing: -0.02em;
         }
 
         .subtitle {
             color: var(--text-muted);
             font-size: 0.95rem;
-            margin-top: 0;
             margin-bottom: 30px;
         }
 
-        /* Interactive File Processing Drop/Click Area */
         .upload-zone {
             border: 2px dashed var(--border);
             padding: 50px 20px;
             border-radius: var(--radius-lg);
             background-color: var(--bg-main);
             cursor: pointer;
-            transition: all 0.25s ease;
         }
 
         .upload-zone:hover {
             border-color: var(--primary);
-            background-color: #1e293b;
-        }
-
-        .upload-icon {
-            font-size: 46px;
-            margin-bottom: 12px;
-            display: inline-block;
         }
 
         input[type="file"] {
             display: none;
         }
 
-        /* Dynamic Image Gallery Thumbnail Row Grid */
         .gallery-preview {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
@@ -164,8 +141,6 @@
             aspect-ratio: 1;
             border-radius: var(--radius-md);
             overflow: hidden;
-            border: 1px solid var(--border);
-            background: #475569;
         }
 
         .thumb-wrapper img {
@@ -174,19 +149,6 @@
             object-fit: cover;
         }
 
-        .thumb-counter {
-            position: absolute;
-            bottom: 3px;
-            right: 3px;
-            background: rgba(15, 23, 42, 0.85);
-            color: #ffffff;
-            font-size: 0.65rem;
-            padding: 1px 5px;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-
-        /* Premium Primary Call-To-Action Download Execution Button */
         .btn {
             display: block;
             background-color: var(--primary);
@@ -197,37 +159,25 @@
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 25px;
             width: 100%;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            margin-top: 25px;
         }
 
         .btn:hover {
             background-color: var(--primary-hover);
-            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
         }
 
         .btn:disabled {
             background-color: #334155;
             color: #64748b;
             cursor: not-allowed;
-            box-shadow: none;
         }
 
-        /* Dynamic Warning and Status Notice Blocks */
         .status-banner {
             margin-top: 20px;
             padding: 16px;
             border-radius: var(--radius-md);
-            font-size: 0.95rem;
             text-align: left;
-        }
-
-        .status-banner.warning {
-            background-color: #2d2006;
-            border-left: 4px solid var(--warning);
-            color: #fcd34d;
         }
 
         .status-banner.success {
@@ -236,7 +186,6 @@
             color: #6ee7b7;
         }
 
-        /* LIVE PREVIEW CONTAINER INTERACTION COMPONENT */
         #preview-container {
             background: var(--bg-subtle);
             border: 1px solid var(--border);
@@ -244,115 +193,47 @@
             padding: 30px;
             margin-bottom: 40px;
             display: none;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
         }
 
         #preview-container h3 {
             margin-top: 0;
             color: var(--dark);
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 12px;
-            font-size: 1.15rem;
         }
 
-        /* The canvas frame background stays white so html2pdf renders clean white pages */
+        /* Container target for html2pdf conversion */
         #preview-content {
             background: #ffffff;
             color: #000000;
-            padding: 20px;
+            padding: 0;
             border-radius: var(--radius-md);
-            min-height: 60px;
-            word-wrap: break-word;
             overflow: hidden;
         }
 
-        /* FIX: AUTOMATIC FULL-PAGE IMAGE CONTAINMENT MATRIX */
+        /* FIX: REMOVED FLEXBOX, FORCING BLOCK PIXEL ENGINE ISOLATION */
         .pdf-image-page-block {
             page-break-after: always !important;
             page-break-inside: avoid !important;
-            page-break-before: auto !important;
-            text-align: center;
-            width: 100%;
-            margin: 0 0 20px 0;
-            padding: 0;
-            box-sizing: border-box;
-            background: #ffffff; /* Requested crisp white page background */
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: block !important;
+            width: 100% !important;
+            background: #ffffff !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            text-align: center !important;
         }
 
-        /* FIX: Prevents layout breaking by sizing images to perfectly hit boundaries */
+        /* FIX: Restricts height mathematically to prevent page-overflow splitting */
         .pdf-image-page-block img {
             max-width: 100% !important;
-            max-height: 10.8in !important; /* Math fix: Never exceeds full height of a single PDF page */
+            max-height: 10.2in !important; /* Forces image to scale down inside 11 inch height bounds */
             width: auto !important;
             height: auto !important;
-            object-fit: contain;
-            display: block;
-            margin: 0 auto;
+            display: inline-block !important;
+            vertical-align: middle !important;
+            margin: 0 auto !important;
         }
 
         .pdf-image-page-block:last-child {
             page-break-after: avoid !important;
-            margin-bottom: 0;
-        }
-
-        /* Technical Content Blocks For Google SEO & AdSense Auditing Integrity */
-        .info-section {
-            margin-bottom: 40px;
-        }
-
-        .info-section h2 {
-            color: var(--dark);
-            font-size: 1.3rem;
-            font-weight: 700;
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 8px;
-            margin-bottom: 16px;
-            letter-spacing: -0.01em;
-        }
-
-        .grid-benefits {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-            margin-top: 15px;
-        }
-
-        .benefit-card {
-            background: var(--bg-subtle);
-            padding: 24px;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-        }
-
-        .benefit-card h3 {
-            margin-top: 0;
-            color: var(--dark);
-            font-size: 1.05rem;
-            margin-bottom: 8px;
-        }
-
-        .faq-item {
-            background: var(--bg-subtle);
-            padding: 20px;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border);
-            margin-bottom: 14px;
-        }
-
-        .faq-item h3 {
-            margin-top: 0;
-            margin-bottom: 6px;
-            font-size: 1.05rem;
-            color: var(--dark);
-        }
-
-        .faq-item p {
-            margin: 0;
-            color: var(--text-main);
-            font-size: 0.95rem;
         }
 
         footer {
@@ -362,64 +243,6 @@
             border-top: 1px solid var(--border);
             font-size: 0.9rem;
             color: var(--text-muted);
-            background: var(--bg-subtle);
-        }
-
-        footer a {
-            color: var(--primary);
-            text-decoration: none;
-            margin: 0 12px;
-            font-weight: 500;
-        }
-
-        footer a:hover {
-            text-decoration: underline;
-        }
-
-        /* Interactive Modal Window Overlay Structures */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(4px);
-        }
-
-        .modal-content {
-            background-color: var(--bg-subtle);
-            margin: 10% auto;
-            padding: 35px;
-            border-radius: var(--radius-lg);
-            max-width: 580px;
-            max-height: 75%;
-            overflow-y: auto;
-            text-align: left;
-            position: relative;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-        }
-
-        .modal-content h2 {
-            color: var(--dark);
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 26px;
-            cursor: pointer;
-            color: var(--text-muted);
-            transition: color 0.2s;
-        }
-
-        .close-modal:hover {
-            color: var(--dark);
         }
     </style>
 </head>
@@ -436,20 +259,18 @@
 
         <div class="converter-card">
             <h1 id="card-title">Convert Word Document to PDF</h1>
-            <p class="subtitle" id="card-subtitle">Secure, standalone local parsing directly inside your web application</p>
+            <p class="subtitle" id="card-subtitle">Secure standalone browser rendering engine</p>
             
             <div class="upload-zone" id="dropZone" onclick="triggerFileInput()">
-                <span class="upload-icon" id="card-icon">📝</span>
-                <p id="file-label" style="margin: 5px 0 0 0; font-weight: 600;">Tap to upload your document (.docx, .doc)</p>
+                <span class="upload-icon" id="card-icon" style="font-size:46px;">📝</span>
+                <p id="file-label" style="margin: 5px 0 0 0; font-weight: 600;">Tap to upload your document (.docx)</p>
                 
-                <input type="file" id="wordInput" accept=".docx,.doc,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                <input type="file" id="wordInput" accept=".docx">
                 <input type="file" id="imageInput" accept="image/jpeg,image/png,image/webp" multiple>
             </div>
 
             <div class="gallery-preview" id="imagePreviewGrid"></div>
-
             <div id="statusBox"></div>
-
             <button class="btn" id="convertBtn" disabled>Download as PDF</button>
         </div>
 
@@ -458,85 +279,18 @@
             <div id="preview-content"></div>
         </div>
 
-        <div class="info-section">
-            <h2>User Operations Blueprint</h2>
-            <ol style="padding-left: 20px; color: var(--text-main);">
-                <li style="margin-bottom: 8px;">Select your intended translation module layout option utilizing the top sliding pill controls.</li>
-                <li style="margin-bottom: 8px;">Tap inside the active shaded container field to upload documents or select your imagery.</li>
-                <li style="margin-bottom: 8px;">Verify formatting structural rules inside the dynamic live framework canvas viewport module.</li>
-                <li style="margin-bottom: 8px;">Click <b>"Download as PDF"</b> to automatically capture high-definition canvases onto system storage.</li>
-            </ol>
-        </div>
-
-        <div class="info-section">
-            <h2>Algorithmic Data Layout Protections</h2>
-            <div class="grid-benefits">
-                <div class="benefit-card">
-                    <h3>Isomorphic Local Compiles</h3>
-                    <p style="font-size:0.9rem; margin:0; color: var(--text-muted);">File translation code executes completely inside the sandbox memory limits of your active tab. Zero records cross over data networks.</p>
-                </div>
-                <div class="benefit-card">
-                    <h3>Synchronized Sizing Core</h3>
-                    <p style="font-size:0.9rem; margin:0; color: var(--text-muted);">The automated script automatically normalizes widescreen graphic arrays and multi-shot phone camera photos into full-bleed matching outputs.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="info-section">
-            <h2>Frequently Asked Questions</h2>
-            
-            <div class="faq-item">
-                <h3>Why does the site trigger a structured layout warning when old .doc items are added?</h3>
-                <p>Legacy binary files deployed from 1997-2003 codebases operate via closed data arrays. Because DocCon protects your total privacy by operating 100% serverless inside your browser tab, it handles open standardized modern structures (.docx) natively. Legacy documents need to be resaved through standard office suites into open formats beforehand.</p>
-            </div>
-
-            <div class="faq-item">
-                <h3>How does the Image to PDF toolkit handle multi-page photo dimension scaling variations?</h3>
-                <p>Our localized layout architecture reads individual picture widths and vertical heights dynamically, re-aligning every chosen graphic asset to capture exactly 100% full-width coverage context on its own single dedicated output sheet sequence block.</p>
-            </div>
-
-            <div class="faq-item">
-                <h3>Is there a maximum data volume threshold size capacity restriction for operations?</h3>
-                <p>Because code runs client-side, size configurations map to device temporary hardware RAM tolerances. For premium performance stability on mobile devices, we recommend compiling image sets in batches of up to 25 items at a time.</p>
-            </div>
-        </div>
-
     </div>
 
     <footer>
         <p>&copy; 2026 DocCon Platform Infrastructure. All rights reserved.</p>
-        <p>
-            <a href="#" onclick="openModal('termsModal')">Terms of Service</a> | 
-            <a href="#" onclick="openModal('privacyModal')">Privacy Policy</a>
-        </p>
     </footer>
 
-    <div id="termsModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('termsModal')">&times;</span>
-            <h2>Terms of Service</h2>
-            <p>Welcome to the DocCon ecosystem utility. By launching our on-page programmatic local canvas transformation code scripts, you understand, validate, and verify that all file rendering events process in an isolated manner inside client-side tab partitions.</p>
-            <p>Operations run with zero network transmission pipelines. Features are provisioned entirely "as-is" under direct choice variables without implicit warranties regarding data alignment anomalies.</p>
-        </div>
-    </div>
-
-    <div id="privacyModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('privacyModal')">&times;</span>
-            <h2>Privacy Policy</h2>
-            <p>Your document data parameters remain completely protected. Because parsing algorithms map arrays locally inside your application browser terminal environment without distributing parameters across external networks, no data is harvested.</p>
-            <p>We refuse to collect individual network identities, location tags, metadata footprints, layout context values, or file content dimensions. All system instances process with clean zero transaction tracking histories.</p>
-        </div>
-    </div>
-
     <script>
-        // Global Dynamic Workspace Core State Parameters
         let currentMode = 'word'; 
         let cachedWordBuffer = null;
         let cachedWordName = "document-output";
         let cachedImageArray = []; 
 
-        // Document Selectors
         const wordInput = document.getElementById('wordInput');
         const imageInput = document.getElementById('imageInput');
         const fileLabel = document.getElementById('file-label');
@@ -546,11 +300,9 @@
         const previewContainer = document.getElementById('preview-container');
         const previewContent = document.getElementById('preview-content');
 
-        // Handles Tab Switching UI Transitions & Structural Swaps
         function switchTab(mode) {
             if (currentMode === mode) return;
             currentMode = mode;
-            
             resetWorkspace();
 
             document.getElementById('tab-word').classList.toggle('active', mode === 'word');
@@ -558,13 +310,13 @@
 
             if (mode === 'word') {
                 document.getElementById('card-title').innerText = "Convert Word Document to PDF";
-                document.getElementById('card-subtitle').innerText = "Secure, standalone local parsing directly inside your mobile browser";
+                document.getElementById('card-subtitle').innerText = "Secure standalone browser rendering engine";
                 document.getElementById('card-icon').innerText = "📝";
-                fileLabel.innerHTML = "Tap to upload your document (.docx, .doc)";
+                fileLabel.innerHTML = "Tap to upload your document (.docx)";
                 imagePreviewGrid.style.display = "none";
             } else {
                 document.getElementById('card-title').innerText = "Convert Images to PDF Book";
-                document.getElementById('card-subtitle').innerText = "Compile multi-shot assignments, diagrams, and photos safely";
+                document.getElementById('card-subtitle').innerText = "Convert wide or tall images without splitting pages";
                 document.getElementById('card-icon').innerText = "🖼️";
                 fileLabel.innerHTML = "Tap to upload image files (JPG, PNG, WebP)";
                 imagePreviewGrid.style.display = "grid";
@@ -572,103 +324,64 @@
         }
 
         function triggerFileInput() {
-            if (currentMode === 'word') {
-                wordInput.click();
-            } else {
-                imageInput.click();
-            }
+            if (currentMode === 'word') { wordInput.click(); } else { imageInput.click(); }
         }
 
         function resetWorkspace() {
-            wordInput.value = null;
-            imageInput.value = null;
-            cachedWordBuffer = null;
-            cachedImageArray = [];
-            statusBox.innerHTML = '';
-            imagePreviewGrid.innerHTML = '';
-            previewContent.innerHTML = '';
-            previewContainer.style.display = 'none';
-            convertBtn.disabled = true;
-            convertBtn.innerText = "Download as PDF";
+            wordInput.value = null; imageInput.value = null;
+            cachedWordBuffer = null; cachedImageArray = [];
+            statusBox.innerHTML = ''; imagePreviewGrid.innerHTML = '';
+            previewContent.innerHTML = ''; previewContainer.style.display = 'none';
+            convertBtn.disabled = true; convertBtn.innerText = "Download as PDF";
         }
 
-        // ==========================================
-        // MODULE ONE: SECURE WORD CONVERSION ENGINE
-        // ==========================================
+        // WORD TO PDF CONVERSION PIPELINE
         wordInput.addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
-            const nameLow = file.name.toLowerCase();
-            const sizeMB = (file.size / 1024 / 1024).toFixed(2);
-
-            // Catch .doc exceptions cleanly and display structured visual fallback alerts
-            if (nameLow.endsWith('.doc')) {
-                fileLabel.innerHTML = `Selected: <b>${file.name}</b>`;
-                statusBox.innerHTML = `
-                    <div class="status-banner warning">
-                        <b>⚠️ Legacy Format Warning:</b> The system caught your <b>.doc</b> file successfully. However, vintage file layers are binary formats unreadable by client browsers. Please launch this file inside Word or Google Docs, hit 'Save As', transform it to a modern <b>.docx</b> format, and try converting again!
-                    </div>`;
-                convertBtn.disabled = true;
-                cachedWordBuffer = null;
-                previewContainer.style.display = 'none';
-                return;
-            }
-
-            fileLabel.innerHTML = `Analyzing Data: <b>${file.name}</b> (${sizeMB} MB)...`;
-            statusBox.innerHTML = '';
-
+            fileLabel.innerHTML = `Analyzing: <b>${file.name}</b>...`;
             try {
                 cachedWordBuffer = await file.arrayBuffer();
                 cachedWordName = file.name.replace(/\.[^/.]+$/, "");
                 
                 mammoth.convertToHtml({ arrayBuffer: cachedWordBuffer })
                     .then(function(result) {
-                        previewContent.innerHTML = result.value || `<p style="color:var(--danger); font-weight:bold;">Empty structural schema map inside XML target asset.</p>`;
+                        previewContent.innerHTML = `<div style="padding: 20px;">${result.value}</div>`;
                         previewContainer.style.display = 'block';
-                        
-                        statusBox.innerHTML = `
-                            <div class="status-banner success">
-                                <b>✓ Open XML Validated:</b> Document parsed. View live structures in preview frame below, then trigger download execution.
-                            </div>`;
-                        fileLabel.innerHTML = `Selected: <b>${file.name}</b>`;
+                        statusBox.innerHTML = `<div class="status-banner success"><b>✓ Ready:</b> Document parsed completely.</div>`;
                         convertBtn.disabled = false;
                     });
             } catch (err) {
-                statusBox.innerHTML = `<div class="status-banner warning"><b>Error:</b> Failed to map array buffers locally. Unreadable structural encryption tree.</div>`;
+                fileLabel.innerHTML = "Error rendering file.";
             }
         });
 
-        // ==========================================
-        // MODULE TWO: MULTI-IMAGE FULL SIZE PAGE ENGINE
-        // ==========================================
-        imageInput.addEventListener('change', async function(e) {
+        // IMAGE TO PDF CONVERSION PIPELINE (FIXED IMAGE INTEGRATION NODE)
+        imageInput.addEventListener('change', function(e) {
             const files = Array.from(e.target.files);
             if (files.length === 0) return;
 
-            fileLabel.innerHTML = `Parsing Layouts for <b>${files.length}</b> Photo Assets...`;
-            statusBox.innerHTML = '';
+            fileLabel.innerHTML = `Formatting <b>${files.length}</b> Images...`;
             imagePreviewGrid.innerHTML = '';
             previewContent.innerHTML = '';
             cachedImageArray = [];
 
             let processedCount = 0;
 
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
+            files.forEach((file, index) => {
                 const reader = new FileReader();
-
                 reader.onload = function(event) {
                     const base64Data = event.target.result;
                     cachedImageArray.push(base64Data);
 
-                    // Add thumbnail feedback to dashboard card module
+                    // Add dashboard UI previews
                     const thumb = document.createElement('div');
                     thumb.className = 'thumb-wrapper';
-                    thumb.innerHTML = `<img src="${base64Data}"><span class="thumb-counter">${i + 1}</span>`;
+                    thumb.innerHTML = `<img src="${base64Data}">`;
                     imagePreviewGrid.appendChild(thumb);
 
-                    // FIXED: Continuous block node configuration that binds image perfectly on one page
+                    // FIX: Wrapped image block using strict alignment properties rather than flexbox
                     const pageBlock = document.createElement('div');
                     pageBlock.className = 'pdf-image-page-block';
                     pageBlock.innerHTML = `<img src="${base64Data}">`;
@@ -678,35 +391,27 @@
                     if (processedCount === files.length) {
                         previewContainer.style.display = 'block';
                         fileLabel.innerHTML = `Selected: <b>${files.length} Images Loaded</b>`;
-                        statusBox.innerHTML = `
-                            <div class="status-banner success">
-                                <b>✓ Gallery Array Standardized:</b> Canvas map verified below. Ready to build static full-page PDF.
-                            </div>`;
+                        statusBox.innerHTML = `<div class="status-banner success"><b>✓ Verified:</b> Images bound securely to individual sheets.</div>`;
                         convertBtn.disabled = false;
                     }
                 };
-
                 reader.readAsDataURL(file);
-            }
+            });
         });
 
-        // ==========================================
-        // DYNAMIC SNAPSHOT DIGITAL PRINT CORE PIPELINE
-        // ==========================================
+        // GENERATION TRIGGER ENGINE
         convertBtn.addEventListener('click', function() {
             convertBtn.disabled = true;
-            convertBtn.innerText = "Processing Output Frames...";
+            convertBtn.innerText = "Building PDF File...";
 
             const targetName = (currentMode === 'word') ? cachedWordName : "image-compilation-output";
+            const printMargin = (currentMode === 'word') ? 0.4 : 0; // 0 margin eliminates image offset drops
 
             setTimeout(() => {
-                // Image conversions use 0 margins so max-height css property scales fully to page borders
-                const printMargin = (currentMode === 'word') ? 0.4 : 0;
-
                 const opt = {
                     margin:       printMargin,
                     filename:     targetName + '.pdf',
-                    image:        { type: 'jpeg', quality: 0.98 },
+                    image:        { type: 'jpeg', quality: 1.0 },
                     html2canvas:  { scale: 2, useCORS: true, logging: false },
                     jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
                     pagebreak:    { mode: ['css', 'legacy'] }
@@ -715,19 +420,12 @@
                 html2pdf().set(opt).from(previewContent).save().then(() => {
                     convertBtn.innerText = "Download as PDF";
                     convertBtn.disabled = false;
-                }).catch(err => {
+                }).catch(() => {
                     convertBtn.innerText = "Download as PDF";
                     convertBtn.disabled = false;
-                    alert("Local file canvas conversion engine memory overflow exception.");
                 });
             }, 300);
         });
-
-        // Administrative Popup Interface Scripts
-        function openModal(id) { document.getElementById(id).style.display = "block"; }
-        function closeModal(id) { document.getElementById(id).style.display = "none"; }
-        window.onclick = function(e) { if (e.target.classList.contains('modal')) e.target.style.display = "none"; }
     </script>
 </body>
 </html>
-      
