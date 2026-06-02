@@ -7,6 +7,7 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
         :root {
@@ -200,7 +201,6 @@
             color: var(--dark);
         }
 
-        /* Container target for html2pdf conversion */
         #preview-content {
             background: #ffffff;
             color: #000000;
@@ -209,31 +209,25 @@
             overflow: hidden;
         }
 
-        /* FIX: REMOVED FLEXBOX, FORCING BLOCK PIXEL ENGINE ISOLATION */
         .pdf-image-page-block {
-            page-break-after: always !important;
-            page-break-inside: avoid !important;
             display: block !important;
             width: 100% !important;
             background: #ffffff !important;
             margin: 0 !important;
-            padding: 0 !important;
+            padding: 20px 0 !important;
             text-align: center !important;
+            border-bottom: 2px dashed #ccc;
         }
 
-        /* FIX: Restricts height mathematically to prevent page-overflow splitting */
         .pdf-image-page-block img {
             max-width: 100% !important;
-            max-height: 10.2in !important; /* Forces image to scale down inside 11 inch height bounds */
             width: auto !important;
             height: auto !important;
             display: inline-block !important;
-            vertical-align: middle !important;
-            margin: 0 auto !important;
         }
 
         .pdf-image-page-block:last-child {
-            page-break-after: avoid !important;
+            border-bottom: none;
         }
 
         footer {
@@ -247,8 +241,7 @@
     </style>
 </head>
 <body>
-
-    <div class="navbar">Doc<span>Con</span> Ultimate</div>
+<div class="navbar">Doc<span>Con</span> Ultimate</div>
 
     <div class="main-wrapper">
         
@@ -357,7 +350,7 @@
             }
         });
 
-        // IMAGE TO PDF CONVERSION PIPELINE (FIXED IMAGE INTEGRATION NODE)
+        // IMAGE TO PDF CONVERSION PIPELINE
         imageInput.addEventListener('change', function(e) {
             const files = Array.from(e.target.files);
             if (files.length === 0) return;
@@ -373,7 +366,7 @@
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     const base64Data = event.target.result;
-                    cachedImageArray.push(base64Data);
+                    cachedImageArray.push({ data: base64Data, type: file.type });
 
                     // Add dashboard UI previews
                     const thumb = document.createElement('div');
@@ -381,7 +374,7 @@
                     thumb.innerHTML = `<img src="${base64Data}">`;
                     imagePreviewGrid.appendChild(thumb);
 
-                    // FIX: Wrapped image block using strict alignment properties rather than flexbox
+                    // Add visual document viewport previews
                     const pageBlock = document.createElement('div');
                     pageBlock.className = 'pdf-image-page-block';
                     pageBlock.innerHTML = `<img src="${base64Data}">`;
@@ -391,7 +384,7 @@
                     if (processedCount === files.length) {
                         previewContainer.style.display = 'block';
                         fileLabel.innerHTML = `Selected: <b>${files.length} Images Loaded</b>`;
-                        statusBox.innerHTML = `<div class="status-banner success"><b>✓ Verified:</b> Images bound securely to individual sheets.</div>`;
+                        statusBox.innerHTML = `<div class="status-banner success"><b>✓ Verified:</b> Ready to convert to exact sizing.</div>`;
                         convertBtn.disabled = false;
                     }
                 };
@@ -399,18 +392,16 @@
             });
         });
 
-        // GENERATION TRIGGER ENGINE
-        convertBtn.addEventListener('click', function() {
+        // GENERATION TRIGGER ENGINE (FIXED)
+        convertBtn.addEventListener('click', async function() {
             convertBtn.disabled = true;
             convertBtn.innerText = "Building PDF File...";
 
-            const targetName = (currentMode === 'word') ? cachedWordName : "image-compilation-output";
-            const printMargin = (currentMode === 'word') ? 0.4 : 0; // 0 margin eliminates image offset drops
-
-            setTimeout(() => {
+            if (currentMode === 'word') {
+                // Keep existing Word-to-PDF logic
                 const opt = {
-                    margin:       printMargin,
-                    filename:     targetName + '.pdf',
+                    margin:       0.4,
+                    filename:     cachedWordName + '.pdf',
                     image:        { type: 'jpeg', quality: 1.0 },
                     html2canvas:  { scale: 2, useCORS: true, logging: false },
                     jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
@@ -424,7 +415,54 @@
                     convertBtn.innerText = "Download as PDF";
                     convertBtn.disabled = false;
                 });
-            }, 300);
+            } else {
+                // New Image-to-PDF Logic (Calculates exact image sizing)
+                try {
+                    const { jsPDF } = window.jspdf;
+                    let pdf = null;
+
+                    for (let i = 0; i < cachedImageArray.length; i++) {
+                        const imageData = cachedImageArray[i];
+                        
+                        // Parse format
+                        let format = 'JPEG';
+                        if (imageData.type === 'image/png') format = 'PNG';
+                        else if (imageData.type === 'image/webp') format = 'WEBP';
+
+                        // Calculate native image dimensions
+                        const img = new Image();
+                        img.src = imageData.data;
+                        await new Promise(resolve => img.onload = resolve);
+
+                        const width = img.naturalWidth;
+                        const height = img.naturalHeight;
+                        const orientation = width > height ? 'l' : 'p';
+
+                        // Create page specifically tailored to the image dimensions
+                        if (i === 0) {
+                            pdf = new jsPDF({
+                                orientation: orientation,
+                                unit: 'px',
+                                format: [width, height]
+                            });
+                        } else {
+                            pdf.addPage([width, height], orientation);
+                        }
+
+                        // Stretch the image perfectly edge-to-edge
+                        pdf.addImage(imageData.data, format, 0, 0, width, height);
+                    }
+
+                    pdf.save("image-compilation-output.pdf");
+                    
+                    convertBtn.innerText = "Download as PDF";
+                    convertBtn.disabled = false;
+                } catch (err) {
+                    console.error(err);
+                    convertBtn.innerText = "Error - Try Again";
+                    convertBtn.disabled = false;
+                }
+            }
         });
     </script>
 </body>
