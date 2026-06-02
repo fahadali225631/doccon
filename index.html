@@ -6,7 +6,6 @@
     <meta name="description" content="DocCon - Free premium online tool to convert Word documents (.docx) and Images (JPG, PNG) to PDF instantly in your browser.">
     <title>DocCon - Premium Online Word & Image to PDF Converter</title>
     
-    <!-- FIX: Replaced mammoth with jszip and docx-preview to preserve ALL colors, fonts, and layouts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://unpkg.com/docx-preview/dist/docx-preview.min.js"></script>
     
@@ -207,17 +206,15 @@
             padding: 30px;
             margin-bottom: 40px;
             display: none;
-            overflow-x: auto; /* Allows horizontal scroll for wide layouts */
+            overflow-x: auto;
         }
 
-        /* FIX: Removed 'overflow: hidden' to prevent text cutting off at the bottom */
         #preview-content {
             color: #000000;
             padding: 0;
             border-radius: var(--radius-md);
         }
 
-        /* UI Styling for the Document preview */
         .docx-wrapper {
             background: var(--bg-main) !important;
             padding: 20px 0 !important;
@@ -227,17 +224,21 @@
         .docx-wrapper > section.docx {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5) !important;
             margin-bottom: 20px !important;
-            page-break-after: always !important; /* Forces clean page breaks */
+            page-break-after: always !important;
         }
 
-        /* FIX: "Export Mode" CSS dynamically removes shadows/backgrounds just before PDF conversion */
+        /* FIX: Absolute Layout override to strip the empty space gap at the top of the PDF */
         .pdf-export-mode .docx-wrapper {
             background: #ffffff !important;
             padding: 0 !important;
+            margin: 0 !important;
+            display: block !important; /* Disables flex container behavior which causes the top space glitch */
         }
+        
         .pdf-export-mode .docx-wrapper > section.docx {
             box-shadow: none !important;
-            margin-bottom: 0 !important;
+            margin: 0 auto !important;
+            padding-top: 0 !important; /* Pulls content directly back to the top edge */
         }
 
         .pdf-image-page-block {
@@ -323,7 +324,6 @@
             <div id="preview-content"></div>
         </div>
 
-        <!-- SEO / AdSense Content Wrapper -->
         <div class="seo-section">
             <h2>How to Convert Files to PDF</h2>
             <p>Welcome to DocCon, your reliable, secure, and fast solution for document and image conversions. Whether you need to turn a text document into a shareable file or compile a photo gallery into a secure document format, our platform processes everything directly within your browser ensuring absolute privacy.</p>
@@ -401,7 +401,7 @@
             previewContent.classList.remove('pdf-export-mode');
         }
 
-        // WORD TO PDF CONVERSION PIPELINE (FIXED)
+        // WORD TO PDF CONVERSION PIPELINE
         wordInput.addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -420,7 +420,6 @@
                 cachedWordName = file.name.replace(/\.[^/.]+$/, "");
                 previewContent.innerHTML = ''; 
 
-                // FIX: Use docx-preview to render fonts, colors, and layout natively
                 await docx.renderAsync(file, previewContent, null, {
                     className: "docx", 
                     inWrapper: true, 
@@ -488,32 +487,32 @@
 
             if (currentMode === 'word') {
                 
-                // Temporarily strips the UI grey background and shadows so the PDF exports purely white
+                // Activates layout conversion block rules to remove top space bug
                 previewContent.classList.add('pdf-export-mode');
 
                 setTimeout(() => {
                     const opt = {
-                        margin:       0, // docx-preview natively handles the true document margins!
+                        margin:       0, 
                         filename:     cachedWordName + '.pdf',
                         image:        { type: 'jpeg', quality: 1.0 },
                         html2canvas:  { 
                             scale: 2, 
                             useCORS: true, 
                             logging: false,
-                            windowWidth: previewContent.scrollWidth // Guarantees width isn't squished down by mobile screens
+                            windowWidth: previewContent.scrollWidth 
                         },
                         jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
-                        pagebreak:    { mode: ['css'] } // Tells it to strictly follow the docx-preview section breaks
+                        pagebreak:    { mode: ['css'] } 
                     };
 
                     html2pdf().set(opt).from(previewContent).save().then(() => {
                         convertBtn.innerText = "Download as PDF";
                         convertBtn.disabled = false;
-                        previewContent.classList.remove('pdf-export-mode'); // Restore the UI
+                        previewContent.classList.remove('pdf-export-mode'); 
                     }).catch(() => {
                         convertBtn.innerText = "Error - Try Again";
                         convertBtn.disabled = false;
-                        previewContent.classList.remove('pdf-export-mode'); // Restore the UI
+                        previewContent.classList.remove('pdf-export-mode'); 
                     });
                 }, 300);
 
