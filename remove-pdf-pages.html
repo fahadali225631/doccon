@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DocCon Ultimate - Remove unwanted pages from your PDF documents instantly. Local browser execution for safety.">
+    <title>DocCon Ultimate - Secure Local PDF Page Editor</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+    <style>
+        :root {
+            --violet: #7c3aed;
+            --violet-mid: #9333ea;
+            --fuchsia: #d946ef;
+            --pink: #ec4899;
+            --rose: #f43f5e;
+            --grad-main: linear-gradient(135deg, #7c3aed 0%, #d946ef 100%);
+            --grad-btn: linear-gradient(135deg, #7c3aed 0%, #c026d3 55%, #ec4899 100%);
+            --white: #ffffff;
+            --bg: #f8f7ff;
+            --surface: #ffffff;
+            --border: rgba(124, 58, 237, 0.12);
+            --text-dark: #1a1035;
+            --text-body: #4b4569;
+            --text-muted: #9590b0;
+            --shadow-sm: 0 2px 12px rgba(124, 58, 237, 0.08);
+            --shadow-md: 0 8px 32px rgba(124, 58, 237, 0.12);
+            --radius-2xl: 24px;
+            --radius-xl: 18px;
+            --radius-lg: 14px;
+            --radius-md: 10px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Outfit', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-body);
+            line-height: 1.65;
+        }
+
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+        }
+
+        .nav-logo { font-weight: 800; font-size: 1.2rem; color: var(--text-dark); text-decoration: none; }
+        .back-link { font-size: 0.9rem; color: var(--violet); text-decoration: none; font-weight: 700; }
+
+        .tool-hero { text-align: center; padding: 48px 24px 24px; }
+        .tool-hero h1 { font-size: 2.2rem; font-weight: 800; color: var(--text-dark); }
+        .tool-hero p { font-size: 1rem; color: var(--text-body); max-width: 520px; margin: 0 auto; }
+
+        .main-wrapper { max-width: 840px; margin: 0 auto; padding: 0 24px 96px; }
+
+        .converter-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-2xl);
+            padding: 40px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-md);
+            position: relative;
+        }
+
+        .converter-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: var(--grad-btn);
+            border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+        }
+
+        .upload-zone {
+            border: 2px dashed rgba(124, 58, 237, 0.25);
+            padding: 50px 20px;
+            border-radius: var(--radius-xl);
+            background: linear-gradient(145deg, #faf8ff 0%, #fef6ff 100%);
+            cursor: pointer;
+            text-align: center;
+        }
+
+        #file-label { font-weight: 700; font-size: 1.05rem; color: var(--text-dark); }
+        input[type="file"] { display: none; }
+
+        /* PAGINATION INTERACTIVE VIEWPORT */
+        #preview-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-2xl);
+            padding: 24px;
+            margin-bottom: 28px;
+            display: none;
+            box-shadow: var(--shadow-md);
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .preview-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--fuchsia); }
+        .preview-title { font-size: 0.8rem; font-weight: 700; color: var(--violet-mid); text-transform: uppercase; }
+
+        .page-selection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            background: var(--bg);
+            padding: 16px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+        }
+
+        .page-checkbox-card {
+            background: white;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .page-checkbox-card input {
+            accent-color: var(--violet);
+            width: 16px; height: 16px;
+        }
+
+        .page-checkbox-card.selected {
+            border-color: var(--violet);
+            background: rgba(124, 58, 237, 0.05);
+        }
+
+        .btn {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 18px; margin-top: 22px; border: none;
+            border-radius: var(--radius-xl); background: var(--grad-btn);
+            color: #fff; font-family: 'Outfit', sans-serif; font-weight: 700;
+            cursor: pointer; box-shadow: 0 8px 28px rgba(124, 58, 237, 0.35);
+        }
+
+        .btn:disabled { background: #ede8f5; color: var(--text-muted); cursor: not-allowed; box-shadow: none; }
+
+        .status-banner { margin-top: 16px; padding: 14px; border-radius: var(--radius-md); font-weight: 500; font-size: 0.875rem; }
+        .status-banner.success { background: rgba(16, 185, 129, 0.07); border: 1px solid rgba(16, 185, 129, 0.2); border-left: 3px solid #10b981; color: #065f46; }
+
+        .adsense-text-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-2xl); padding: 40px; box-shadow: var(--shadow-sm); }
+        .adsense-text-block h2 { font-size: 1.3rem; color: var(--text-dark); margin-bottom: 12px; font-weight: 800; }
+        .adsense-text-block p { font-family: 'Lora', serif; font-size: 0.95rem; color: var(--text-body); line-height: 1.7; margin-bottom: 12px; }
+
+        footer { text-align: center; padding: 36px 20px; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--text-muted); background: white; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="nav-logo">📄 DocCon Ultimate</a>
+        <a href="index.html" class="back-link">← Back to Hub</a>
+    </nav>
+
+    <section class="tool-hero">
+        <h1>Extract PDF Pages</h1>
+        <p>Edit PDF structures client-side. Keep the pages you want and discard the rest locally.</p>
+    </section>
+
+    <div class="main-wrapper">
+        <div class="converter-card">
+            <div class="upload-zone" id="dropZone" onclick="triggerFileInput()">
+                <div class="upload-icon-wrap">✂️</div>
+                <span id="file-label">Select PDF File</span>
+                <p class="upload-hint">Drag & drop supported</p>
+                <input type="file" id="pdfInput" accept="application/pdf">
+            </div>
+
+            <div id="statusBox"></div>
+
+            <button class="btn" id="compileBtn" disabled>Generate Edited PDF</button>
+        </div>
+
+        <!-- VIEWPORT PAGE LIST -->
+        <div id="preview-container">
+            <div class="preview-header">
+                <div class="preview-dot"></div>
+                <span class="preview-title">Select Pages to Keep</span>
+            </div>
+            <div class="page-selection-grid" id="pageGrid"></div>
+        </div>
+
+        <section class="adsense-text-block">
+            <h2>The Local Pipeline of PDF Page Manipulation</h2>
+            <p>
+                Deleting unwanted pages or extracting specific content sections from a portable document (PDF) is processed locally without sending files to external servers. Because PDFs use static coordinates and indexed object arrays, editing them requires parsing the file into local memory buffers.
+            </p>
+            <p>
+                Using `pdf-lib`, DocCon Ultimate reads the uploaded PDF's cross-reference tables. It decodes document parameters and identifies individual page references. The system then displays each page index as an interactive checkbox in your browser.
+            </p>
+            <p>
+                When you click compile, the application initiates a blank document canvas. It duplicates and copies only your selected page indices, preserving all nested object details, embedded fonts, and vector lines. This client-side approach ensures your files remain secure and private.
+            </p>
+        </section>
+    </div>
+
+    <footer>
+        <p>© 2026 DocCon Platform Infrastructure. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const pdfInput = document.getElementById('pdfInput');
+        const fileLabel = document.getElementById('file-label');
+        const compileBtn = document.getElementById('compileBtn');
+        const previewContainer = document.getElementById('preview-container');
+        const pageGrid = document.getElementById('pageGrid');
+        const statusBox = document.getElementById('statusBox');
+
+        let originalPdfDoc = null;
+        let originalPdfBytes = null;
+        let totalPages = 0;
+
+        function triggerFileInput() { pdfInput.click(); }
+
+        pdfInput.addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            fileLabel.innerHTML = `Loading <b>${file.name}</b>...`;
+            statusBox.innerHTML = '';
+            pageGrid.innerHTML = '';
+
+            try {
+                originalPdfBytes = await file.arrayBuffer();
+                originalPdfDoc = await PDFLib.PDFDocument.load(originalPdfBytes);
+                totalPages = originalPdfDoc.getPageCount();
+
+                for (let i = 0; i < totalPages; i++) {
+                    const card = document.createElement('div');
+                    card.className = 'page-checkbox-card selected';
+                    card.innerHTML = `<input type="checkbox" checked data-index="${i}"> <span>Page ${i + 1}</span>`;
+                    
+                    card.addEventListener('click', function(e) {
+                        const cb = card.querySelector('input');
+                        if (e.target !== cb) cb.checked = !cb.checked;
+                        card.classList.toggle('selected', cb.checked);
+                    });
+
+                    pageGrid.appendChild(card);
+                }
+
+                previewContainer.style.display = 'block';
+                fileLabel.innerHTML = `<b>${file.name} Loaded</b>`;
+                statusBox.innerHTML = `<div class="status-banner success"><b>✓ Ready:</b> PDF read successfully. Uncheck any pages you want to delete.</div>`;
+                compileBtn.disabled = false;
+
+            } catch (err) {
+                console.error(err);
+                statusBox.innerHTML = `<div class="status-banner" style="background:rgba(244,63,94,0.06); color:#9f1239; border:1px solid rgba(244,63,94,0.2); border-left:3px solid var(--rose);">Could not open PDF file layout structure. Ensure it is not password protected.</div>`;
+            }
+        });
+
+        compileBtn.addEventListener('click', async function() {
+            const checkboxes = Array.from(pageGrid.querySelectorAll('input[type="checkbox"]'));
+            const pagesToKeepIndices = checkboxes.filter(cb => cb.checked).map(cb => parseInt(cb.getAttribute('data-index')));
+
+            if (pagesToKeepIndices.length === 0) {
+                alert('Please select at least one page to keep.');
+                return;
+            }
+
+            compileBtn.disabled = true;
+            compileBtn.innerHTML = 'Manipulating File Map...';
+
+            try {
+                const newPdfDoc = await PDFLib.PDFDocument.create();
+                const copiedPages = await newPdfDoc.copyPages(originalPdfDoc, pagesToKeepIndices);
+                copiedPages.forEach(page => newPdfDoc.addPage(page));
+
+                const newPdfBytes = await newPdfDoc.save();
+                const blob = new Blob([newPdfBytes], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'edited-document.pdf';
+                a.click();
+
+                compileBtn.innerHTML = 'Generate Edited PDF';
+                compileBtn.disabled = false;
+            } catch (err) {
+                console.error(err);
+                compileBtn.innerHTML = 'Error compiling changes';
+                compileBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
