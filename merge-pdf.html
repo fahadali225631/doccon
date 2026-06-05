@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DocCon Ultimate - Merge multiple PDF files safely in your browser. Fully local execution with zero cloud storage.">
+    <title>DocCon Ultimate - Secure Local PDF Merger</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+    <style>
+        :root {
+            /* Vibrant Green & Ultra-Dark Theme System */
+            --violet: #10b981;          /* Primary vibrant green accent */
+            --violet-mid: #059669;      /* Mid green */
+            --fuchsia: #10b981;
+            --pink: #34d399;            /* Hover light green */
+            --rose: #f43f5e;
+            --grad-main: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --grad-btn: linear-gradient(135deg, #10b981 0%, #059669 55%, #047857 100%);
+            --grad-soft: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.04) 100%);
+            
+            --white: #ffffff;
+            --bg: #090a0f;              /* Deep Dark Background */
+            --surface: #111318;         /* Card Surface Background */
+            --border: rgba(16, 185, 129, 0.25);
+            --border-hover: rgba(52, 211, 153, 0.6);
+
+            --text-dark: #ffffff;       /* Pure white headers */
+            --text-body: #cbd5e1;       /* Light slate-silver text for high readability */
+            --text-muted: #94a3b8;      /* Mid slate grey */
+
+            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --shadow-md: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(16, 185, 129, 0.05);
+
+            --radius-2xl: 20px;
+            --radius-xl: 16px;
+            --radius-lg: 12px;
+            --radius-md: 10px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Outfit', system-ui, sans-serif;
+            background-color: var(--bg);
+            /* Fine structural grid line overlay matching reference */
+            background-image: 
+                linear-gradient(rgba(16, 185, 129, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 185, 129, 0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: center;
+            color: var(--text-body);
+            line-height: 1.65;
+        }
+
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(9, 10, 15, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+        }
+
+        .nav-logo { font-weight: 800; font-size: 1.2rem; color: var(--text-dark); text-decoration: none; }
+        .back-link { font-size: 0.9rem; color: var(--violet); text-decoration: none; font-weight: 700; }
+        .back-link:hover { color: var(--pink); }
+
+        .tool-hero { text-align: center; padding: 48px 24px 24px; }
+        .tool-hero h1 { font-size: 2.2rem; font-weight: 800; color: var(--text-dark); }
+        .tool-hero p { font-size: 1rem; color: var(--text-body); max-width: 520px; margin: 0 auto; }
+
+        .main-wrapper { max-width: 840px; margin: 0 auto; padding: 0 24px 96px; }
+
+        .converter-card {
+            background: linear-gradient(145deg, #111318 0%, #151820 100%);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-2xl);
+            padding: 40px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-md);
+            position: relative;
+        }
+
+        .converter-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: var(--grad-btn);
+            border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+        }
+
+        .upload-zone {
+            border: 2px dashed rgba(16, 185, 129, 0.35);
+            padding: 50px 20px;
+            border-radius: var(--radius-xl);
+            background: linear-gradient(145deg, #13151c 0%, #1e2230 100%);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--violet);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+        }
+
+        .upload-icon-wrap {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+
+        #file-label { font-weight: 700; font-size: 1.05rem; color: var(--text-dark); }
+        .upload-hint { font-size: 0.88rem; color: var(--text-muted); }
+        input[type="file"] { display: none; }
+
+        /* MERGE LIST */
+        .merge-list {
+            margin-top: 20px;
+            background: var(--bg);
+            padding: 14px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            display: none;
+        }
+
+        .merge-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: #1e2230;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        .merge-item:last-child { margin-bottom: 0; }
+
+        .btn {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 18px; margin-top: 22px; border: none;
+            border-radius: var(--radius-xl); background: var(--grad-btn);
+            color: #0d0e12; font-family: 'Outfit', sans-serif; font-weight: 700;
+            cursor: pointer; box-shadow: 0 8px 28px rgba(16, 185, 129, 0.25);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(16, 185, 129, 0.35);
+        }
+
+        .btn:disabled { background: #1e2230; color: var(--text-muted); cursor: not-allowed; box-shadow: none; }
+
+        .status-banner { margin-top: 16px; padding: 14px; border-radius: var(--radius-md); font-weight: 500; font-size: 0.875rem; }
+        .status-banner.success { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-left: 3px solid #10b981; color: #34d399; }
+
+        .adsense-text-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-2xl); padding: 40px; box-shadow: var(--shadow-sm); }
+        .adsense-text-block h2 { font-size: 1.3rem; color: var(--text-dark); margin-bottom: 12px; font-weight: 800; }
+        .adsense-text-block p { font-family: 'Lora', serif; font-size: 0.95rem; color: var(--text-body); line-height: 1.7; margin-bottom: 12px; }
+
+        footer { text-align: center; padding: 36px 20px; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--text-muted); background: var(--bg); }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="nav-logo">📄 DocCon Ultimate</a>
+        <a href="index.html" class="back-link">← Back to Hub</a>
+    </nav>
+
+    <section class="tool-hero">
+        <h1>Merge PDF Documents</h1>
+        <p>Combine multiple PDF documents chronologically inside your browser sandbox. Keep your data private.</p>
+    </section>
+
+    <div class="main-wrapper">
+        <div class="converter-card">
+            <div class="upload-zone" id="dropZone" onclick="triggerFileInput()">
+                <div class="upload-icon-wrap">🔗</div>
+                <span id="file-label">Select PDF Files to Merge</span>
+                <p class="upload-hint">Upload 2 or more files</p>
+                <input type="file" id="pdfFileInput" accept="application/pdf" multiple>
+            </div>
+
+            <div class="merge-list" id="pdfMergeList"></div>
+            <div id="statusBox"></div>
+
+            <button class="btn" id="mergeBtn" disabled>Combine PDFs Now</button>
+        </div>
+
+        <section class="adsense-text-block">
+            <h2>The Local Pipeline of PDF Document Merging</h2>
+            <p>
+                Combining separate portable document structures without corrupting page layouts or internal structure models requires precise low-level parsing of PDF dictionaries. PDFs are structured hierarchically using document object trees, page mapping coordinates, embedded cross-reference tables, and font resources.
+            </p>
+            <p>
+                DocCon Ultimate processes this merging process locally using client-side JS libraries. When you select multiple PDFs, the files are parsed into local memory buffers. Our compiler iterates through each selected document to register its internal object hierarchy. By initiating a target master layout using PDFLib, the pages of each source PDF are cleanly copied and appended in sequence.
+            </p>
+            <p>
+                Executing this structural compilation in your browser sandbox protects your personal contracts, financial receipts, and official documentation from the tracking risks of external cloud conversion servers.
+            </p>
+        </section>
+    </div>
+
+    <footer>
+        <p>© 2026 DocCon Platform Infrastructure. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const pdfFileInput = document.getElementById('pdfFileInput');
+        const fileLabel = document.getElementById('file-label');
+        const mergeBtn = document.getElementById('mergeBtn');
+        const pdfMergeList = document.getElementById('pdfMergeList');
+        const statusBox = document.getElementById('statusBox');
+        let fileQueue = [];
+
+        function triggerFileInput() { pdfFileInput.click(); }
+
+        pdfFileInput.addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            if (files.length < 2) {
+                statusBox.innerHTML = `<div class="status-banner" style="background:rgba(244,63,94,0.06); color:#9f1239; border:1px solid rgba(244,63,94,0.2); border-left:3px solid var(--rose);">Please select 2 or more PDF documents to merge.</div>`;
+                return;
+            }
+
+            fileQueue = files;
+            pdfMergeList.innerHTML = '';
+            pdfMergeList.style.display = 'block';
+
+            files.forEach((file, index) => {
+                const item = document.createElement('div');
+                item.className = 'merge-item';
+                item.innerHTML = `<span>[${index + 1}] ${file.name}</span> <span style="color:var(--violet-mid); font-size:0.8rem;">Ready</span>`;
+                pdfMergeList.appendChild(item);
+            });
+
+            fileLabel.innerHTML = `<b>${files.length} PDFs Loaded</b>`;
+            statusBox.innerHTML = `<div class="status-banner success"><b>✓ Ready:</b> Document parameters loaded. Proceed with merging.</div>`;
+            mergeBtn.disabled = false;
+        });
+
+        mergeBtn.addEventListener('click', async function() {
+            mergeBtn.disabled = true;
+            mergeBtn.innerHTML = 'Merging Document Libraries...';
+
+            try {
+                const mergedPdf = await PDFLib.PDFDocument.create();
+
+                for (let i = 0; i < fileQueue.length; i++) {
+                    const arrayBuffer = await fileQueue[i].arrayBuffer();
+                    const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+                    const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
+                    copiedPages.forEach((page) => mergedPdf.addPage(page));
+                }
+
+                const pdfBytes = await mergedPdf.save();
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'merged-document.pdf';
+                a.click();
+
+                mergeBtn.innerHTML = 'Combine PDFs Now';
+                mergeBtn.disabled = false;
+            } catch (err) {
+                console.error(err);
+                mergeBtn.innerHTML = 'Merge Error - Try Again';
+                mergeBtn.disabled = false;
+            }
+        });
+
+        // Drag and drop
+        const dropZone = document.getElementById('dropZone');
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--violet)'; });
+        dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = ''; });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '';
+            if (e.dataTransfer.files.length > 0) {
+                pdfFileInput.files = e.dataTransfer.files;
+                pdfFileInput.dispatchEvent(new Event('change'));
+            }
+        });
+    </script>
+</body>
+</html>
