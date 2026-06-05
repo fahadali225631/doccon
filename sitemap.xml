@@ -1,0 +1,40 @@
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://doccon.me/</loc>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://doccon.me/index.html</loc>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://doccon.me/img-to-pdf.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://doccon.me/docx-to-pdf.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://doccon.me/merge-pdf.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://doccon.me/remove-pdf-pages.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://doccon.me/pdf-to-img.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://doccon.me/text-extractor.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://doccon.me/compressor.html</loc>
+    <priority>0.8</priority>
+  </url>
+</urlset>
