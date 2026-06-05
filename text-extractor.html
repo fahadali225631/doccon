@@ -1,0 +1,629 @@
+<!-- START OF FILE text-extractor.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DocCon Ultimate - Extract editable text from images instantly. Secure, browser-native client-side OCR tool.">
+    <title>DocCon Ultimate - Secure Local Image Text Extractor (OCR)</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+    <!-- REQUIRED OCR ENGINE -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+    <style>
+        :root {
+            /* Vibrant Green & Ultra-Dark Theme System */
+            --violet: #10b981;          /* Primary vibrant green accent */
+            --violet-mid: #059669;      /* Mid green */
+            --fuchsia: #10b981;
+            --pink: #34d399;            /* Hover light green */
+            --rose: #f43f5e;
+            --grad-main: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --grad-btn: linear-gradient(135deg, #10b981 0%, #059669 55%, #047857 100%);
+            --grad-soft: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.04) 100%);
+            --grad-card: linear-gradient(145deg, #111318 0%, #151820 100%);
+
+            --white: #ffffff;
+            --bg: #090a0f;              /* Deep Dark Background */
+            --surface: #111318;         /* Card Surface Background */
+            --border: rgba(16, 185, 129, 0.25);
+            --border-hover: rgba(52, 211, 153, 0.6);
+
+            --text-dark: #ffffff;       /* Pure white headers */
+            --text-body: #cbd5e1;       /* Light slate-silver text for high readability */
+            --text-muted: #94a3b8;      /* Mid slate grey */
+
+            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --shadow-md: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(16, 185, 129, 0.05);
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.8);
+
+            --radius-2xl: 20px;
+            --radius-xl: 16px;
+            --radius-lg: 12px;
+            --radius-md: 10px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Outfit', system-ui, sans-serif;
+            background-color: var(--bg);
+            /* Fine structural grid line overlay matching reference */
+            background-image: 
+                linear-gradient(rgba(16, 185, 129, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 185, 129, 0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: center;
+            color: var(--text-body);
+            line-height: 1.65;
+        }
+
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(9, 10, 15, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-logo { font-weight: 800; font-size: 1.2rem; color: var(--text-dark); text-decoration: none; }
+        .back-link { font-size: 0.9rem; color: var(--violet); text-decoration: none; font-weight: 700; }
+        .back-link:hover { color: var(--pink); }
+
+        .tool-hero { text-align: center; padding: 48px 24px 24px; }
+        .tool-hero h1 { font-size: 2.2rem; font-weight: 800; color: var(--text-dark); }
+        .tool-hero p { font-size: 1rem; color: var(--text-body); max-width: 520px; margin: 0 auto; }
+
+        .main-wrapper { max-width: 840px; margin: 0 auto; padding: 0 24px 96px; }
+
+        .converter-card {
+            background: linear-gradient(145deg, #111318 0%, #151820 100%);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-2xl);
+            padding: 40px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            text-align: center;
+        }
+
+        .converter-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: var(--grad-btn);
+            border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+        }
+
+        .upload-zone {
+            border: 2px dashed rgba(16, 185, 129, 0.35);
+            padding: 50px 20px;
+            border-radius: var(--radius-xl);
+            background: linear-gradient(145deg, #13151c 0%, #1e2230 100%);
+            cursor: pointer;
+            text-align: center;
+            margin-bottom: 24px;
+            transition: all 0.3s;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--violet);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+        }
+
+        .upload-icon-wrap { font-size: 2.5rem; margin-bottom: 12px; }
+        .upload-label { font-weight: 700; font-size: 1.05rem; color: var(--text-dark); }
+        .upload-hint { font-size: 0.88rem; color: var(--text-muted); margin-top: 4px; }
+        input[type="file"] { display: none; }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            text-align: left;
+            margin-bottom: 24px;
+        }
+
+        .control-label {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+
+        .select-input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            border: 1.5px solid var(--border);
+            background: #151820;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-dark);
+            font-weight: 600;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .select-input:focus {
+            border-color: var(--violet);
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+        }
+
+        /* PROGRESS WRAPPERS */
+        #progressContainer {
+            margin-top: 20px;
+            display: none;
+            text-align: left;
+        }
+
+        .progress-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--pink);
+            margin-bottom: 6px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: #1e2230;
+            border-radius: 100px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: var(--grad-main);
+            transition: width 0.25s ease;
+        }
+
+        .btn {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 18px; margin-top: 12px; border: none;
+            border-radius: var(--radius-xl); background: var(--grad-btn);
+            color: #0d0e12; font-family: 'Outfit', sans-serif; font-weight: 700;
+            cursor: pointer; box-shadow: 0 8px 28px rgba(16, 185, 129, 0.25);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(16, 185, 129, 0.35);
+        }
+
+        .btn:disabled { background: #1e2230; color: var(--text-muted); cursor: not-allowed; box-shadow: none; }
+
+        .status-banner { margin-top: 16px; padding: 14px; border-radius: var(--radius-md); font-weight: 500; font-size: 0.875rem; text-align: left; }
+        .status-banner.success { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-left: 3px solid #10b981; color: #34d399; }
+
+        /* RESULT VIEWPORT */
+        #result-container {
+            background: linear-gradient(145deg, #111318 0%, #151820 100%);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-2xl);
+            padding: 24px;
+            margin-bottom: 28px;
+            display: none;
+            box-shadow: var(--shadow-md);
+            text-align: left;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .preview-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--violet); }
+        .preview-title { font-size: 0.8rem; font-weight: 700; color: var(--violet); text-transform: uppercase; }
+
+        .output-textarea {
+            width: 100%;
+            height: 250px;
+            padding: 16px;
+            font-family: 'Lora', serif;
+            font-size: 1rem;
+            color: var(--text-dark);
+            background: #1e2230;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            resize: vertical;
+            outline: none;
+            margin-bottom: 16px;
+            transition: border-color 0.2s;
+        }
+
+        .output-textarea:focus {
+            border-color: var(--violet);
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.15);
+        }
+
+        .actions-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 500px) {
+            .actions-row { grid-template-columns: 1fr; }
+        }
+
+        .btn-secondary {
+            background: #111318;
+            border: 1.5px solid var(--border);
+            color: var(--violet);
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(16, 185, 129, 0.08);
+            border-color: var(--pink);
+            color: var(--pink);
+        }
+
+        .adsense-text-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-2xl); padding: 40px; box-shadow: var(--shadow-sm); }
+        .adsense-text-block h2 { font-size: 1.3rem; color: var(--text-dark); margin-bottom: 12px; font-weight: 800; }
+        .adsense-text-block p { font-family: 'Lora', serif; font-size: 0.95rem; color: var(--text-body); line-height: 1.7; margin-bottom: 12px; }
+
+        footer { text-align: center; padding: 36px 20px; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--text-muted); background: var(--bg); }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="nav-logo">📄 DocCon Ultimate</a>
+        <a href="index.html" class="back-link">← Back to Hub</a>
+    </nav>
+
+    <section class="tool-hero">
+        <h1>Image Text Extractor (OCR)</h1>
+        <p>Extract clean text layers from images locally using localized Neural Engines. Your images never leave your phone.</p>
+    </section>
+
+    <div class="main-wrapper">
+        <div class="converter-card">
+            <div class="upload-zone" id="dropZone" onclick="triggerFileInput()">
+                <div class="upload-icon-wrap">🔍</div>
+                <span id="file-label" class="upload-label">Select Document Image</span>
+                <p class="upload-hint">Drag & drop JPG, PNG, or WebP</p>
+                <input type="file" id="imgInput" accept="image/*">
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Document Language</label>
+                <select id="langSelect" class="select-input">
+                    <option value="eng" selected>English</option>
+                    <option value="spa">Spanish (Español)</option>
+                    <option value="fra">French (Français)</option>
+                    <option value="deu">German (Deutsch)</option>
+                    <option value="por">Portuguese (Português)</option>
+                    <option value="ita">Italian (Italiano)</option>
+                </select>
+            </div>
+
+            <div id="progressContainer">
+                <div class="progress-meta">
+                    <span id="progressStatus">Initializing scanner...</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div id="progressBar" class="progress-bar-fill"></div>
+                </div>
+            </div>
+
+            <div id="statusBox"></div>
+            
+            <!-- Controls Grid wrapping Extract and Cancel operations -->
+            <div id="btnContainer" style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 12px;">
+                <button class="btn" id="extractBtn" style="margin-top:0;" disabled>Extract Text From Image Now</button>
+                <button class="btn btn-secondary" id="cancelBtn" style="margin-top:0; display:none; background:#1b1418; border-color:var(--rose); color:var(--rose);">✕ Cancel Scan</button>
+            </div>
+        </div>
+
+        <!-- EXTRACTED OUTPUT VIEWPORT -->
+        <div id="result-container">
+            <div class="result-header">
+                <div class="preview-dot"></div>
+                <span class="preview-title">Extracted Text Content</span>
+            </div>
+            <textarea class="output-textarea" id="extractedTextArea" spellcheck="false"></textarea>
+            
+            <div class="actions-row">
+                <button class="btn" id="copyBtn" style="margin-top:0;">📋 Copy to Clipboard</button>
+                <button class="btn btn-secondary" id="downloadTxtBtn" style="margin-top:0;">💾 Save as Plain Text (.txt)</button>
+            </div>
+        </div>
+
+        <section class="adsense-text-block">
+            <h2>The Science of Browser-Native Optical Character Recognition</h2>
+            <p>
+                Optical Character Recognition (OCR) converts pixel patterns of text (raster graphics) into raw, editable Unicode symbols. Traditionally, parsing written pages required calling remote web services, passing raw, personal camera exposures to cloud databases for server-side calculations.
+            </p>
+            <p>
+                DocCon Ultimate processes this locally using compiled WebAssembly. Built with standard `Tesseract.js` wrappers, the scanner acts as a local browser-native neural network program.
+            </p>
+            <p>
+                When an image is loaded, the browser parses the file into a temporary memory array. The OCR engine downloads the requested language's baseline training files (.traineddata) to map character shapes. It then runs structural analysis across document baselines, extracting readable and editable text. Since everything happens inside your browser sandbox, your documentation remains completely confidential.
+            </p>
+        </section>
+    </div>
+
+    <footer>
+        <p>© 2026 DocCon Platform Infrastructure. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const imgInput = document.getElementById('imgInput');
+        const fileLabel = document.getElementById('file-label');
+        const langSelect = document.getElementById('langSelect');
+        const extractBtn = document.getElementById('extractBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const btnContainer = document.getElementById('btnContainer');
+        const statusBox = document.getElementById('statusBox');
+        
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressStatus = document.getElementById('progressStatus');
+        const progressPercent = document.getElementById('progressPercent');
+
+        const resultContainer = document.getElementById('result-container');
+        const extractedTextArea = document.getElementById('extractedTextArea');
+        const copyBtn = document.getElementById('copyBtn');
+        const downloadTxtBtn = document.getElementById('downloadTxtBtn');
+
+        let selectedFile = null;
+        
+        // High-performance operational state variables
+        let cachedWorker = null;
+        let cachedLang = null;
+        let isProcessing = false;
+        const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB Intake Limit Cap
+
+        function triggerFileInput() { imgInput.click(); }
+
+        // Handles image size assessment upstream before initialization
+        function validateAndAssignFile(file) {
+            if (!file) return;
+
+            if (file.size > MAX_FILE_SIZE) {
+                statusBox.innerHTML = `
+                    <div class="status-banner" style="background:rgba(244,63,94,0.06); color:#9f1239; border:1px solid rgba(244,63,94,0.2); border-left:3px solid var(--rose);">
+                        <b>✕ File Blocked:</b> Image size of ${(file.size / (1024 * 1024)).toFixed(1)}MB exceeds the 50MB stability limit. Please upload a smaller image file.
+                    </div>`;
+                fileLabel.innerHTML = 'Select Document Image';
+                imgInput.value = '';
+                selectedFile = null;
+                extractBtn.disabled = true;
+                resultContainer.style.display = 'none';
+                progressContainer.style.display = 'none';
+                return;
+            }
+
+            selectedFile = file;
+            fileLabel.innerHTML = `Loaded: <b>${file.name}</b>`;
+            statusBox.innerHTML = '';
+            resultContainer.style.display = 'none';
+            progressContainer.style.display = 'none';
+            extractBtn.disabled = false;
+        }
+
+        imgInput.addEventListener('change', function(e) {
+            validateAndAssignFile(e.target.files[0]);
+        });
+
+        // Monitors progress messages generated from active tesseract worker thread
+        function handleWorkerProgress(m) {
+            if (!isProcessing) return;
+
+            if (m.status === 'recognizing text') {
+                const percent = Math.round(m.progress * 100);
+                progressBar.style.width = `${percent}%`;
+                progressPercent.innerText = `${percent}%`;
+                progressStatus.innerText = 'Extracting characters & layout lines...';
+            } else if (m.status === 'loading tesseract core') {
+                progressBar.style.width = '20%';
+                progressPercent.innerText = '20%';
+                progressStatus.innerText = 'Loading Core Engine parameters...';
+            } else if (m.status === 'loading language traineddata' || m.status === 'loading language traineddata (from cache)') {
+                progressBar.style.width = '45%';
+                progressPercent.innerText = '45%';
+                progressStatus.innerText = 'Staging local language pack...';
+            } else if (m.status === 'initializing api') {
+                progressBar.style.width = '70%';
+                progressPercent.innerText = '70%';
+                progressStatus.innerText = 'Aligning pixel matrices...';
+            } else {
+                progressStatus.innerText = m.status;
+            }
+        }
+
+        // Retrieves existing worker context or safely terminates and rebuilds for new languages
+        async function getCachedWorker(targetLang) {
+            if (cachedWorker && cachedLang === targetLang) {
+                return cachedWorker;
+            }
+
+            if (cachedWorker) {
+                try {
+                    await cachedWorker.terminate();
+                } catch (e) {
+                    console.warn("Error terminating old worker instance: ", e);
+                }
+                cachedWorker = null;
+                cachedLang = null;
+            }
+
+            cachedWorker = await Tesseract.createWorker(targetLang, 1, {
+                logger: m => handleWorkerProgress(m)
+            });
+            cachedLang = targetLang;
+            return cachedWorker;
+        }
+
+        // Active thread abort / cancellation engine sequence
+        async function cancelOCR() {
+            if (!isProcessing) return;
+            isProcessing = false;
+
+            if (cachedWorker) {
+                try {
+                    await cachedWorker.terminate();
+                } catch (e) {
+                    console.warn("Exception while destroying active worker instance: ", e);
+                }
+                cachedWorker = null;
+                cachedLang = null;
+            }
+
+            // Restore control modules back to default values
+            progressContainer.style.display = 'none';
+            progressBar.style.width = '0%';
+            progressPercent.innerText = '0%';
+            
+            extractBtn.disabled = false;
+            extractBtn.innerHTML = 'Extract Text From Image Now';
+            cancelBtn.style.display = 'none';
+            btnContainer.style.gridTemplateColumns = '1fr';
+
+            statusBox.innerHTML = `
+                <div class="status-banner" style="background:rgba(244,63,94,0.06); color:#9f1239; border:1px solid rgba(244,63,94,0.2); border-left:3px solid var(--rose);">
+                    <b>Scan Cancelled:</b> Thread execution was forcefully terminated and thread memory cleared.
+                </div>`;
+        }
+
+        cancelBtn.addEventListener('click', cancelOCR);
+
+        extractBtn.addEventListener('click', async function() {
+            if (!selectedFile) return;
+
+            isProcessing = true;
+            extractBtn.disabled = true;
+            extractBtn.innerHTML = 'Initializing Scanner...';
+            
+            // Adjust actions layout to hold cancel control element
+            cancelBtn.style.display = 'flex';
+            btnContainer.style.gridTemplateColumns = '1fr 1fr';
+
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
+            progressPercent.innerText = '0%';
+            progressStatus.innerText = 'Configuring recognition context...';
+            resultContainer.style.display = 'none';
+            statusBox.innerHTML = '';
+
+            try {
+                const lang = langSelect.value;
+                const worker = await getCachedWorker(lang);
+
+                // Exit sequence if process was cancelled during core generation
+                if (!isProcessing) return;
+
+                progressStatus.innerText = 'Analyzing local raster parameters...';
+                const result = await worker.recognize(selectedFile);
+
+                // Exit sequence if process was cancelled during layout assessment
+                if (!isProcessing) return;
+
+                progressContainer.style.display = 'none';
+
+                if (result && result.data && result.data.text) {
+                    const text = result.data.text.trim();
+                    if (text.length > 0) {
+                        extractedTextArea.value = text;
+                        resultContainer.style.display = 'block';
+                        statusBox.innerHTML = `<div class="status-banner success"><b>✓ Scan Success:</b> Content analyzed and structured below.</div>`;
+                    } else {
+                        statusBox.innerHTML = `<div class="status-banner" style="background:rgba(244,63,94,0.06); color:#9f1239; border:1px solid rgba(244,63,94,0.2); border-left:3px solid var(--rose);">OCR completed, but found no readable text characters. Ensure the image is high contrast and clear.</div>`;
+                    }
+                }
+
+            } catch (err) {
+                console.error("OCR Core Engine Exception: ", err);
+                progressContainer.style.display = 'none';
+                
+                if (isProcessing) {
+                    statusBox.innerHTML = `
+                        <div class="status-banner" style="background:rgba(244,63,94,0.06); color:#9f1239; border:1px solid rgba(244,63,94,0.2); border-left:3px solid var(--rose);">
+                            <b>Processing Failed:</b> Local execution engine aborted. Detail: ${err.message || err}
+                        </div>`;
+                }
+            } finally {
+                if (isProcessing) {
+                    isProcessing = false;
+                    extractBtn.disabled = false;
+                    extractBtn.innerHTML = 'Extract Text From Image Now';
+                    cancelBtn.style.display = 'none';
+                    btnContainer.style.gridTemplateColumns = '1fr';
+                }
+            }
+        });
+
+        // Copy Extraction to Clipboard
+        copyBtn.addEventListener('click', function() {
+            extractedTextArea.select();
+            navigator.clipboard.writeText(extractedTextArea.value).then(() => {
+                const prevLabel = copyBtn.innerHTML;
+                copyBtn.innerHTML = '✓ Copied Text!';
+                setTimeout(() => { copyBtn.innerHTML = prevLabel; }, 2000);
+            }).catch(err => {
+                alert('Copy block interrupted: ' + err);
+            });
+        });
+
+        // Download Extraction as Local .txt Document and instantly garbage collect output
+        downloadTxtBtn.addEventListener('click', function() {
+            const blob = new Blob([extractedTextArea.value], {type: 'text/plain;charset=utf-8'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'extracted-document.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            // Immediate Object URL deallocation
+            setTimeout(() => {
+                URL.revokeObjectURL(url);
+            }, 100);
+        });
+
+        // Absolute cleanup hook on page unload to clear WebAssembly memory allocation from the browser process
+        window.addEventListener('beforeunload', () => {
+            if (cachedWorker) {
+                try {
+                    cachedWorker.terminate();
+                } catch (e) {
+                    // Fail silently during unload sequence
+                }
+            }
+        });
+
+        // Setup Drag & Drop
+        const dropZone = document.getElementById('dropZone');
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--violet)'; });
+        dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = ''; });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '';
+            if (e.dataTransfer.files.length > 0) {
+                validateAndAssignFile(e.dataTransfer.files[0]);
+            }
+        });
+    </script>
+</body>
+</html>
+<!-- END OF FILE text-extractor.html -->
